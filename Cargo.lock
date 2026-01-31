@@ -11,6 +11,14 @@ name = "client"
 version = "0.1.0"
 
 [[package]]
+name = "common"
+version = "0.1.0"
+
+[[package]]
+name = "proto-generator"
+version = "0.1.0"
+
+[[package]]
 name = "server"
 version = "0.1.0"
 

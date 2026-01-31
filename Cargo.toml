@@ -1,6 +1,13 @@
 [workspace]
 resolver = "3"
-members = ["modules/cli", "modules/client", "modules/server", "modules/wasm-fe"]
+members = [
+    "modules/cli",
+    "modules/client",
+    "modules/common",
+    "modules/proto-generator",
+    "modules/server",
+    "modules/wasm-fe"
+]
 
 [workspace.package]
 version = "0.1.0"

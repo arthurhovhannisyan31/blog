@@ -1,5 +1,5 @@
 [package]
-name = "wasm-fe"
+name = "common"
 description = ""
 version.workspace = true
 edition.workspace = true
