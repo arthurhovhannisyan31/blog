@@ -11,3 +11,8 @@ repository = "https://github.com/arthurhovhannisyan31/blog"
 rust-version = "1.93.0"
 
 [workspace.dependencies]
+
+[workspace.lints]
+
+[profile.release]
+lto = "thin"
