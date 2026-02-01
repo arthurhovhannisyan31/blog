@@ -4,20 +4,16 @@ use serde::{Deserialize, Serialize};
 /* Entities */
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Post {
-  pub id: u64,
+  pub id: i64,
   pub title: String,
   pub content: String,
-  pub author_id: u64,
+  pub author_id: i64,
   pub created_at: DateTime<Utc>,
   pub updated_at: DateTime<Utc>,
 }
 
 impl Post {
-  pub fn new(
-    title: String,
-    content: String,
-    author_id: u64, // TODO Validate in handler
-  ) -> Self {
+  pub fn new(title: String, content: String, author_id: i64) -> Self {
     Self {
       id: 0,
       title,

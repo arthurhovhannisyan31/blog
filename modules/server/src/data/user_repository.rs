@@ -1,8 +1,9 @@
-use crate::domain::error::DomainError;
-use crate::domain::user::User;
 use async_trait::async_trait;
 use sqlx::PgPool;
 use tracing::{error, info};
+
+use crate::domain::error::DomainError;
+use crate::domain::user::User;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync {
@@ -28,7 +29,7 @@ impl UserRepository for PostgresUserRepository {
         INSERT INTO users (username, email, password_hash)
         VALUES ($1, $2, $3)
         RETURNING users.id, users.username, users.email, users.password_hash, users.created_at
-    "#,
+      "#,
       user.username,
       user.email,
       user.password_hash,
@@ -41,7 +42,8 @@ impl UserRepository for PostgresUserRepository {
       if e
         .as_database_error()
         .and_then(|db| db.constraint())
-        .map(|c| c.contains("users_email"))
+        // TODO test: username unique, email unique
+        .map(|c| c.contains("users_email")) // TODO Test string intersection
         == Some(true)
       {
         DomainError::UserAlreadyExists(user.id)
@@ -63,7 +65,7 @@ impl UserRepository for PostgresUserRepository {
         SELECT users.id, users.username, users.email, users.password_hash, users.created_at
         FROM users
         WHERE users.email = $1
-    "#,
+      "#,
       email
     ).fetch_optional(&self.pool)
       .await
@@ -81,7 +83,7 @@ impl UserRepository for PostgresUserRepository {
         SELECT users.id, users.username, users.email, users.password_hash, users.created_at
         FROM users
         WHERE users.id = $1
-    "#,
+      "#,
       id
     ).fetch_optional(&self.pool)
       .await
