@@ -3,13 +3,15 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum DomainError {
   #[error("User not found: {0}")]
-  UserNotFound(uuid::Uuid),
+  UserNotFound(i64),
   #[error("User already exists: {0}")]
-  UserAlreadyExists(uuid::Uuid),
+  UserAlreadyExists(i64),
   #[error("Invalid credentials")]
   InvalidCredentials,
   #[error("Post not found: {0}")]
-  PostNotFound(uuid::Uuid),
+  PostNotFound(u64),
   #[error("Access is forbidden")]
   Forbidden,
+  #[error("internal error: {0}")]
+  Internal(String),
 }

@@ -1,11 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 /* Entities */
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
-  pub id: Uuid, // should be u64
+  pub id: i64,
   pub username: String,
   pub email: String,
   pub password_hash: String,
@@ -15,7 +14,7 @@ pub struct User {
 impl User {
   pub fn new(username: String, email: String, password_hash: String) -> Self {
     Self {
-      id: Uuid::new_v4(),
+      id: 0,
       username,
       email,
       password_hash,

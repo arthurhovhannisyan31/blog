@@ -1,41 +1,95 @@
-// use crate::domain::error::DomainError;
-// use crate::domain::user::User;
-// use async_trait::async_trait;
-// use sqlx::PgPool;
-// use tracing::info;
-// use uuid::Uuid;
-//
-// #[async_trait]
-// pub trait UserRepository: Send + Sync {
-//   async fn create(&self, user: User) -> Result<User, DomainError>;
-//   async fn find_by_email(
-//     &self,
-//     email: &str,
-//   ) -> Result<Option<User>, DomainError>;
-//   async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, DomainError>;
-// }
-//
-// #[derive(Clone)]
-// pub struct PostgresUserRepository {
-//   pool: PgPool,
-// }
-//
-// #[async_trait]
-// impl UserRepository for PostgresUserRepository {
-//   async fn create(&self, user: User) -> Result<User, DomainError> {
-//     sqlx::query(
-//       r#"
-//       INSERT INTO users (id, username, email, password_hash)
-//       VALUES ($1, $2, $3, $4)
-//     "#,
-//     )
-//     .bind(user.id)
-//     .bind(user.username)
-//     .bind(user.email)
-//     .bind(user.password_hash)
-//     .await;
-//
-//     info!(user_id = %user.id, email = %user.email, "user created");
-//     Ok(user)
-//   }
-// }
+use crate::domain::error::DomainError;
+use crate::domain::user::User;
+use async_trait::async_trait;
+use sqlx::PgPool;
+use tracing::{error, info};
+
+#[async_trait]
+pub trait UserRepository: Send + Sync {
+  async fn create(&self, user: User) -> Result<User, DomainError>;
+  async fn find_by_email(
+    &self,
+    email: &str,
+  ) -> Result<Option<User>, DomainError>;
+  async fn find_by_id(&self, id: i64) -> Result<Option<User>, DomainError>;
+}
+
+#[derive(Clone)]
+pub struct PostgresUserRepository {
+  pool: PgPool,
+}
+
+#[async_trait]
+impl UserRepository for PostgresUserRepository {
+  async fn create(&self, user: User) -> Result<User, DomainError> {
+    let user_data = sqlx::query_as!(
+      User,
+      r#"
+        INSERT INTO users (username, email, password_hash)
+        VALUES ($1, $2, $3)
+        RETURNING users.id, users.username, users.email, users.password_hash, users.created_at
+    "#,
+      user.username,
+      user.email,
+      user.password_hash,
+    )
+    .fetch_one(&self.pool)
+    .await
+    .map_err(|e| {
+      error!("Failed to create user: {}", e);
+
+      if e
+        .as_database_error()
+        .and_then(|db| db.constraint())
+        .map(|c| c.contains("users_email"))
+        == Some(true)
+      {
+        DomainError::UserAlreadyExists(user.id)
+      } else {
+        DomainError::Internal(format!("database error: {}", e))
+      }
+    })?;
+
+    info!(user_id = %user.id, email = %user.email, "user created");
+    Ok(user_data)
+  }
+  async fn find_by_email(
+    &self,
+    email: &str,
+  ) -> Result<Option<User>, DomainError> {
+    let user_data = sqlx::query_as!(
+      User,
+      r#"
+        SELECT users.id, users.username, users.email, users.password_hash, users.created_at
+        FROM users
+        WHERE users.email = $1
+    "#,
+      email
+    ).fetch_optional(&self.pool)
+      .await
+      .map_err(|e|{
+        error!("Failed to find user by email {}: {}", email, e);
+        DomainError::Internal(format!("database error: {}", e))
+      })?;
+
+    Ok(user_data)
+  }
+  async fn find_by_id(&self, id: i64) -> Result<Option<User>, DomainError> {
+    let user_data = sqlx::query_as!(
+      User,
+      r#"
+        SELECT users.id, users.username, users.email, users.password_hash, users.created_at
+        FROM users
+        WHERE users.id = $1
+    "#,
+      id
+    ).fetch_optional(&self.pool)
+      .await
+      .map_err(|e|{
+        error!("Failed to find user by id {}: {}", id, e);
+        DomainError::Internal(format!("database error: {}", e))
+      })?;
+
+    Ok(user_data)
+  }
+}

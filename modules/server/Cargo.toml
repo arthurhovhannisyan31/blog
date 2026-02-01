@@ -23,7 +23,6 @@ sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "chron
 thiserror.workspace = true
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "chrono", "time"] }
-uuid = { version = "1", features = ["v4", "serde"] }
 
 [lints]
 workspace = true

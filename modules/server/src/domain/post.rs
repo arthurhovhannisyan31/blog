@@ -1,14 +1,13 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 /* Entities */
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Post {
-  pub id: Uuid,
+  pub id: u64,
   pub title: String,
   pub content: String,
-  pub author_id: Uuid,
+  pub author_id: u64,
   pub created_at: DateTime<Utc>,
   pub updated_at: DateTime<Utc>,
 }
@@ -17,10 +16,10 @@ impl Post {
   pub fn new(
     title: String,
     content: String,
-    author_id: Uuid, // TODO Validate in handler
+    author_id: u64, // TODO Validate in handler
   ) -> Self {
     Self {
-      id: Uuid::new_v4(),
+      id: 0,
       title,
       content,
       author_id,
