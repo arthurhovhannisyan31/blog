@@ -1,2 +1,3 @@
-mod private;
-mod public;
+pub mod auth;
+pub mod dto;
+pub mod posts;
