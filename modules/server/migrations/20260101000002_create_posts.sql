@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS Posts
 (
     id         BIGSERIAL PRIMARY KEY,
     title      VARCHAR     NOT NULL,
-    content    TEXT,
-    author_id  BIGINT REFERENCES blog_db.public.users (id) ON DELETE CASCADE,
+    content    TEXT        NOT NULL,
+    author_id  BIGINT      NOT NULL REFERENCES blog_db.public.users (id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
