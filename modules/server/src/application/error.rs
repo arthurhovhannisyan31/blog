@@ -1,6 +1,6 @@
 use crate::domain::error::DomainError;
 use actix_web::body::BoxBody;
-use actix_web::{http::StatusCode, HttpResponse, ResponseError};
+use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
