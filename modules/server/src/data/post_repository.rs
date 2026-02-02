@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sqlx::PgPool;
+use sqlx::{FromRow, PgPool};
 use tracing::error;
 
 use crate::domain::error::DomainError;
@@ -9,14 +9,25 @@ use crate::domain::post::Post;
 pub trait PostRepository: Send + Sync {
   async fn create(&self, post: Post) -> Result<Post, DomainError>;
   async fn get(&self, id: i64) -> Result<Option<Post>, DomainError>;
-  async fn get_all(&self, author_id: i64) -> Result<Vec<Post>, DomainError>;
-  async fn update(&self, post: Post) -> Result<Post, DomainError>;
+  async fn get_all(
+    &self,
+    limit: i64,
+    offset: i64,
+  ) -> Result<Vec<Post>, DomainError>;
+  async fn get_row_count(&self) -> Result<i64, DomainError>;
+  async fn update(&self, id: i64, post: Post) -> Result<Post, DomainError>;
   async fn delete(&self, id: i64) -> Result<(), DomainError>;
 }
 
 #[derive(Clone)]
 pub struct PostgresPostRepository {
   pool: PgPool,
+}
+
+impl PostgresPostRepository {
+  pub fn new(pool: PgPool) -> Self {
+    Self { pool }
+  }
 }
 
 #[async_trait]
@@ -56,6 +67,7 @@ impl PostRepository for PostgresPostRepository {
     .await
     .map_err(|e| {
       error!("Failed to delete post: {}", e);
+      // TODO Ensure 404 returned for missing post
       error!(
         constraint = e.as_database_error().and_then(|db| db.constraint()),
         "DB Constraint: Delete: "
@@ -88,15 +100,20 @@ impl PostRepository for PostgresPostRepository {
 
     Ok(Some(row))
   }
-  async fn get_all(&self, author_id: i64) -> Result<Vec<Post>, DomainError> {
+  async fn get_all(
+    &self,
+    limit: i64,
+    offset: i64,
+  ) -> Result<Vec<Post>, DomainError> {
     let rows = sqlx::query_as!(
       Post,
       r#"
         SELECT *
         from posts
-        WHERE posts.author_id = $1
+        LIMIT $1 OFFSET $2;
       "#,
-      author_id
+      limit,
+      offset,
     )
     .fetch_all(&self.pool)
     .await
@@ -112,7 +129,23 @@ impl PostRepository for PostgresPostRepository {
 
     Ok(rows)
   }
-  async fn update(&self, post: Post) -> Result<Post, DomainError> {
+  async fn get_row_count(&self) -> Result<i64, DomainError> {
+    let count = sqlx::query_scalar!("SELECT COUNT(*) from posts",)
+      .fetch_one(&self.pool)
+      .await
+      .map_err(|e| {
+        error!("Failed to fetch posts: {}", e);
+        error!(
+          constraint = e.as_database_error().and_then(|db| db.constraint()),
+          "DB Constraint: Get *: "
+        );
+
+        DomainError::Internal(format!("database error: {}", e))
+      })?;
+
+    Ok(count.unwrap_or(0))
+  }
+  async fn update(&self, id: i64, post: Post) -> Result<Post, DomainError> {
     let row = sqlx::query_as!(
       Post,
       r#"
@@ -123,13 +156,15 @@ impl PostRepository for PostgresPostRepository {
         WHERE id = $1
         RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at
       "#,
-      post.id,
+      id,
       post.title,
       post.content,
     ).fetch_one(&self.pool)
       .await
       .map_err(|e| {
         error!("Failed to update posts: {}", e);
+
+        // TODO return 404 if post not found
         error!(
         constraint = e.as_database_error().and_then(|db| db.constraint()),
         "DB Constraint: Get *: "

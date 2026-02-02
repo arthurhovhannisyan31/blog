@@ -15,7 +15,7 @@ pub struct JwtKeys {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-  pub user_id: String,
+  pub user_id: i64,
   pub exp: usize,
   pub iat: usize,
 }
@@ -30,7 +30,7 @@ impl JwtKeys {
     user_id: i64,
   ) -> Result<String, jsonwebtoken::errors::Error> {
     let claims = Claims {
-      user_id: user_id.to_string(),
+      user_id,
       exp: chrono::Utc::now()
         .checked_add_signed(chrono::Duration::hours(1))
         .unwrap()

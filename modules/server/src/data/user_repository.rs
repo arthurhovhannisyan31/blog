@@ -20,6 +20,12 @@ pub struct PostgresUserRepository {
   pool: PgPool,
 }
 
+impl PostgresUserRepository {
+  pub fn new(pool: PgPool) -> Self {
+    Self { pool }
+  }
+}
+
 #[async_trait]
 impl UserRepository for PostgresUserRepository {
   async fn create(&self, user: User) -> Result<User, DomainError> {

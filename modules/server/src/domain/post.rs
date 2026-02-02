@@ -1,7 +1,7 @@
 use crate::domain::error::DomainError;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-/* Entities */
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Post {
   pub id: i64,
@@ -31,17 +31,4 @@ impl Post {
       updated_at: Utc::now(),
     })
   }
-}
-
-/* DTO */
-#[derive(Debug, Deserialize)]
-pub struct CreatePostRequest {
-  pub title: String,
-  pub content: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct UpdatePostRequest {
-  pub title: String,
-  pub content: String,
 }
