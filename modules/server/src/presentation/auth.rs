@@ -3,9 +3,9 @@ use crate::data::user_repository::PostgresUserRepository;
 use crate::infrastructure::jwt::JwtKeys;
 use actix_web::dev::Payload;
 use actix_web::{
-  error::ErrorUnauthorized, Error, FromRequest, HttpMessage, HttpRequest,
+  Error, FromRequest, HttpMessage, HttpRequest, error::ErrorUnauthorized,
 };
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 
 #[derive(Debug, Clone)]
 pub struct AuthenticatedUser {
