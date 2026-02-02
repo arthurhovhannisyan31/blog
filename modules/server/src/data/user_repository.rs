@@ -23,7 +23,7 @@ pub struct PostgresUserRepository {
 #[async_trait]
 impl UserRepository for PostgresUserRepository {
   async fn create(&self, user: User) -> Result<User, DomainError> {
-    let user_data = sqlx::query_as!(
+    let row = sqlx::query_as!(
       User,
       r#"
         INSERT INTO users (username, email, password_hash)
@@ -53,13 +53,13 @@ impl UserRepository for PostgresUserRepository {
     })?;
 
     info!(user_id = %user.id, email = %user.email, "user created");
-    Ok(user_data)
+    Ok(row)
   }
   async fn find_by_email(
     &self,
     email: &str,
   ) -> Result<Option<User>, DomainError> {
-    let user_data = sqlx::query_as!(
+    let row = sqlx::query_as!(
       User,
       r#"
         SELECT users.id, users.username, users.email, users.password_hash, users.created_at
@@ -74,10 +74,10 @@ impl UserRepository for PostgresUserRepository {
         DomainError::Internal(format!("database error: {}", e))
       })?;
 
-    Ok(user_data)
+    Ok(row)
   }
   async fn find_by_id(&self, id: i64) -> Result<Option<User>, DomainError> {
-    let user_data = sqlx::query_as!(
+    let row = sqlx::query_as!(
       User,
       r#"
         SELECT users.id, users.username, users.email, users.password_hash, users.created_at
@@ -92,6 +92,6 @@ impl UserRepository for PostgresUserRepository {
         DomainError::Internal(format!("database error: {}", e))
       })?;
 
-    Ok(user_data)
+    Ok(row)
   }
 }

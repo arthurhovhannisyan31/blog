@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::application::error::ApplicationError;
 use crate::data::user_repository::UserRepository;
 use crate::domain::user::User;
-use crate::infrastructure::jwt::{JwtKeys, hash_password, verify_password};
+use crate::infrastructure::jwt::{hash_password, verify_password, JwtKeys};
 
 pub struct AuthService<R: UserRepository + 'static> {
   repo: Arc<R>,
@@ -24,7 +24,7 @@ where
 
   // TODO Check if it works
   // #[instrument(skip(self))]
-  pub async fn get_user(&self, id: i64) -> Result<User, ApplicationError> {
+  pub async fn get(&self, id: i64) -> Result<User, ApplicationError> {
     self
       .repo
       .find_by_id(id)

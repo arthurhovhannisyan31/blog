@@ -1,6 +1,6 @@
 use crate::domain::error::DomainError;
 use actix_web::body::BoxBody;
-use actix_web::{HttpResponse, ResponseError, http::StatusCode};
+use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
 use serde_json::json;
 use thiserror::Error;
@@ -17,6 +17,8 @@ pub enum ApplicationError {
   NotFound(String),
   #[error("Unauthorized")]
   Unauthorized,
+  #[error("validation error: {0}")]
+  Validation(String),
 }
 
 #[derive(Serialize)]
@@ -34,6 +36,7 @@ impl ResponseError for ApplicationError {
       ApplicationError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
       ApplicationError::NotFound(_) => StatusCode::NOT_FOUND,
       ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
+      ApplicationError::Validation(_) => StatusCode::BAD_REQUEST,
     }
   }
 
@@ -47,6 +50,7 @@ impl ResponseError for ApplicationError {
         Some(json!({"resource": resource}))
       }
       ApplicationError::Unauthorized => None,
+      ApplicationError::Validation(msg) => Some(json!({"message": msg})),
     };
     let body = ErrorBody {
       error: &message,
@@ -71,6 +75,7 @@ impl From<DomainError> for ApplicationError {
       DomainError::UserNotFound(id) => {
         ApplicationError::NotFound(format!("User not found: {}", id))
       }
+      DomainError::Validation(msg) => ApplicationError::Validation(msg),
     }
   }
 }

@@ -1,14 +1,15 @@
-use crate::domain::error::DomainError;
-use crate::domain::post::Post;
 use async_trait::async_trait;
 use sqlx::PgPool;
 use tracing::error;
 
+use crate::domain::error::DomainError;
+use crate::domain::post::Post;
+
 #[async_trait]
 pub trait PostRepository: Send + Sync {
   async fn create(&self, post: Post) -> Result<Post, DomainError>;
-  async fn get(&self, id: &str) -> Result<Option<Post>, DomainError>;
-  async fn get_all(&self, owner_id: i64) -> Result<Vec<Post>, DomainError>;
+  async fn get(&self, id: i64) -> Result<Option<Post>, DomainError>;
+  async fn get_all(&self, author_id: i64) -> Result<Vec<Post>, DomainError>;
   async fn update(&self, post: Post) -> Result<Post, DomainError>;
   async fn delete(&self, id: i64) -> Result<(), DomainError>;
 }
@@ -21,7 +22,7 @@ pub struct PostgresPostRepository {
 #[async_trait]
 impl PostRepository for PostgresPostRepository {
   async fn create(&self, post: Post) -> Result<Post, DomainError> {
-    let post_data = sqlx::query_as!(
+    let row = sqlx::query_as!(
       Post,
       r#"
         INSERT INTO posts (title, content, author_id)
@@ -40,18 +41,103 @@ impl PostRepository for PostgresPostRepository {
         DomainError::Internal(format!("database error: {}", e))
       })?;
 
-    Ok(post_data)
+    Ok(row)
   }
   async fn delete(&self, id: i64) -> Result<(), DomainError> {
-    todo!()
+    sqlx::query(
+      r#"
+        DELETE
+        FROM posts
+        WHERE posts.id = $1
+      "#,
+    )
+    .bind(id)
+    .fetch_optional(&self.pool)
+    .await
+    .map_err(|e| {
+      error!("Failed to delete post: {}", e);
+      error!(
+        constraint = e.as_database_error().and_then(|db| db.constraint()),
+        "DB Constraint: Delete: "
+      );
+
+      DomainError::Internal(format!("database error: {}", e))
+    })?;
+
+    Ok(())
   }
-  async fn get(&self, id: &str) -> Result<Option<Post>, DomainError> {
-    todo!()
+  async fn get(&self, id: i64) -> Result<Option<Post>, DomainError> {
+    let row = sqlx::query_as!(
+      Post,
+      r#"
+        SELECT posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at
+        from posts
+        WHERE posts.id = $1
+      "#,
+      id
+    ).fetch_one(&self.pool)
+      .await
+      .map_err(|e| {
+        error!("Failed to fetch post: {}", e);
+        error!(constraint = e
+        .as_database_error()
+        .and_then(|db| db.constraint()), "DB Constraint: Get: ");
+
+        DomainError::Internal(format!("database error: {}", e))
+      })?;
+
+    Ok(Some(row))
   }
-  async fn get_all(&self, owner_id: i64) -> Result<Vec<Post>, DomainError> {
-    todo!()
+  async fn get_all(&self, author_id: i64) -> Result<Vec<Post>, DomainError> {
+    let rows = sqlx::query_as!(
+      Post,
+      r#"
+        SELECT *
+        from posts
+        WHERE posts.author_id = $1
+      "#,
+      author_id
+    )
+    .fetch_all(&self.pool)
+    .await
+    .map_err(|e| {
+      error!("Failed to fetch posts: {}", e);
+      error!(
+        constraint = e.as_database_error().and_then(|db| db.constraint()),
+        "DB Constraint: Get *: "
+      );
+
+      DomainError::Internal(format!("database error: {}", e))
+    })?;
+
+    Ok(rows)
   }
   async fn update(&self, post: Post) -> Result<Post, DomainError> {
-    todo!()
+    let row = sqlx::query_as!(
+      Post,
+      r#"
+        UPDATE posts
+        SET title = $2,
+            content = $3,
+            created_at = NOW()
+        WHERE id = $1
+        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at
+      "#,
+      post.id,
+      post.title,
+      post.content,
+    ).fetch_one(&self.pool)
+      .await
+      .map_err(|e| {
+        error!("Failed to update posts: {}", e);
+        error!(
+        constraint = e.as_database_error().and_then(|db| db.constraint()),
+        "DB Constraint: Get *: "
+      );
+
+        DomainError::Internal(format!("database error: {}", e))
+      })?;
+
+    Ok(row)
   }
 }
