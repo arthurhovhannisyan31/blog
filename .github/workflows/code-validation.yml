@@ -8,6 +8,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+#permissions:
+#  #  actions: write
+#  contents: write
+
 jobs:
   code-validation:
     name: Code validation
@@ -15,6 +19,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+      - name: Setup env
+        run: |
+          sudo apt-get install protobuf-compiler
       - name: Setup Cargo
         uses: ./.github/actions/setup-cargo
       - name: Validate code
