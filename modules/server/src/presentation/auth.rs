@@ -1,8 +1,8 @@
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 
 use actix_web::dev::Payload;
 use actix_web::{
-  error::ErrorUnauthorized, Error, FromRequest, HttpMessage, HttpRequest,
+  Error, FromRequest, HttpMessage, HttpRequest, error::ErrorUnauthorized,
 };
 
 use crate::application::auth_service::AuthService;

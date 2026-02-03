@@ -1,5 +1,5 @@
 use actix_web::dev::ServiceRequest;
-use actix_web::{error, web, Error, HttpMessage};
+use actix_web::{Error, HttpMessage, error, web};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::application::auth_service::AuthService;

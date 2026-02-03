@@ -1,7 +1,7 @@
 use actix_web::{
-  middleware::{DefaultHeaders, Logger}, web,
-  App,
-  HttpServer,
+  App, HttpServer,
+  middleware::{DefaultHeaders, Logger},
+  web,
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use std::sync::Arc;
