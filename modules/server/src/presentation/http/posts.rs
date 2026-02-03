@@ -112,21 +112,11 @@ pub async fn get_posts(
   let limit = params.limit.unwrap_or(QUERY_LIMIT);
   let offset = params.offset.unwrap_or(QUERY_OFFSET);
 
-  // TODO Che how negative numbers will be treated
-
-  // if limit < 0 || offset < 0 {
-  //   return Err(ApplicationError::Validation(
-  //     "Limit and offset must be positive values".to_string(),
-  //   ));
-  // }
-
   let total = blog_service.get_posts_count().await? as u64;
-
-  // TODO Check if range inclusive
-  let next_offset = min(total, limit);
-  let next_limit = next_offset + QUERY_LIMIT_STEP;
-  let next_limit = if next_limit > total { 0 } else { next_limit };
   let posts = blog_service.get_posts(limit as i64, offset as i64).await?;
+
+  let next_offset = min(total, limit);
+  let next_limit = min(next_offset + QUERY_LIMIT_STEP, total);
 
   Ok(HttpResponse::Ok().json(json!({
     "posts": posts,
