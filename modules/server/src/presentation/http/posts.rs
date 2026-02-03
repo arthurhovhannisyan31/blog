@@ -1,4 +1,4 @@
-use actix_web::{delete, get, post, put, web, HttpResponse, Scope};
+use actix_web::{HttpResponse, Scope, delete, get, post, put, web};
 use serde_json::json;
 use tracing::info;
 

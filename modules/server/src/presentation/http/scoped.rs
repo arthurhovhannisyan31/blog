@@ -2,7 +2,7 @@ use crate::presentation::http::{
   auth::{health, login, register},
   posts::{create_post, get_post, get_posts, update_post},
 };
-use actix_web::{web, Scope};
+use actix_web::{Scope, web};
 
 pub fn public_scope() -> Scope {
   web::scope("/v0")
