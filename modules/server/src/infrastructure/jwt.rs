@@ -1,11 +1,11 @@
-use argon2::password_hash::rand_core::OsRng;
 use argon2::{
-  Argon2,
   password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+  Argon2,
 };
 use jsonwebtoken::{
-  DecodingKey, EncodingKey, Header, Validation, decode, encode,
+  decode, encode, DecodingKey, EncodingKey, Header, Validation,
 };
+use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone)]

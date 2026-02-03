@@ -87,7 +87,7 @@ impl PostRepository for PostgresPostRepository {
         WHERE posts.id = $1
       "#,
       id
-    ).fetch_one(&self.pool)
+    ).fetch_optional(&self.pool)
       .await
       .map_err(|e| {
         error!("Failed to fetch post: {}", e);
@@ -98,7 +98,7 @@ impl PostRepository for PostgresPostRepository {
         DomainError::Internal(format!("database error: {}", e))
       })?;
 
-    Ok(Some(row))
+    Ok(row)
   }
   async fn get_all(
     &self,

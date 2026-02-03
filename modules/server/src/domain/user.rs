@@ -11,7 +11,7 @@ pub struct User {
 }
 
 impl User {
-  pub fn new(username: String, email: String, password_hash: String) -> Self {
+  pub fn new(email: String, password_hash: String, username: String) -> Self {
     Self {
       id: 0,
       username,

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::application::error::ApplicationError;
 use crate::data::user_repository::UserRepository;
 use crate::domain::user::User;
-use crate::infrastructure::jwt::{JwtKeys, hash_password, verify_password};
+use crate::infrastructure::jwt::{hash_password, verify_password, JwtKeys};
 
 #[derive(Clone)]
 pub struct AuthService<R: UserRepository + 'static> {
@@ -37,12 +37,12 @@ where
   pub async fn register(
     &self,
     email: String,
-    username: String,
     password: String,
+    username: String,
   ) -> Result<User, ApplicationError> {
     let hash = hash_password(&password)
       .map_err(|err| ApplicationError::Internal(err.to_string()))?;
-    let user = User::new(email.to_lowercase(), username, hash);
+    let user = User::new(email.to_lowercase(), hash, username);
 
     self.repo.create(user).await.map_err(ApplicationError::from)
   }

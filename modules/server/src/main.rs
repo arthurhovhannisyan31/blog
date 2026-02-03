@@ -1,5 +1,8 @@
-use actix_web::middleware::{DefaultHeaders, Logger};
-use actix_web::{App, HttpServer, web};
+use actix_web::{
+  middleware::{DefaultHeaders, Logger}, web,
+  App,
+  HttpServer,
+};
 use std::sync::Arc;
 
 mod application;
@@ -20,7 +23,10 @@ use infrastructure::{
   jwt::JwtKeys,
   logging::init_logging,
 };
-use presentation::{http, middleware::jwt::JwtAuthMiddleware};
+use presentation::http::scoped::protected_scope;
+use presentation::{
+  http::scoped::public_scope, middleware::jwt::JwtAuthMiddleware,
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -39,11 +45,9 @@ async fn main() -> std::io::Result<()> {
   let users_repo = Arc::new(PostgresUserRepository::new(pool.clone()));
 
   let blog_service = BlogService::new(Arc::clone(&posts_repo));
-  let auth_service = AuthService::new(
-    Arc::clone(&users_repo),
-    JwtKeys::new(config.jwt_secret.clone()),
-  );
-  let jwt_keys = auth_service.keys().clone();
+  let jwt_keys = JwtKeys::new(config.jwt_secret.clone());
+  let jwt_keys_clone = jwt_keys.clone();
+  let auth_service = AuthService::new(Arc::clone(&users_repo), jwt_keys);
   let config_clone = config.clone();
 
   HttpServer::new(move || {
@@ -61,14 +65,11 @@ async fn main() -> std::io::Result<()> {
       .app_data(web::Data::new(blog_service.clone()))
       .app_data(web::Data::new(auth_service.clone()))
       .service(
-        web::scope("/api")
-          .configure(http::auth::configure)
-          .configure(http::posts::configure_public)
-          .service(
-            web::scope("")
-              .wrap(JwtAuthMiddleware::new(jwt_keys.clone()))
-              .configure(http::posts::configure_protected),
-          ),
+        web::scope("/api").service(public_scope()).service(
+          web::scope("")
+            .wrap(JwtAuthMiddleware::new(jwt_keys_clone.clone()))
+            .service(protected_scope()),
+        ),
       )
   })
   .bind((config.host.as_str(), config.port))?

@@ -1,25 +1,16 @@
-use actix_web::{HttpResponse, delete, get, post, put, web};
+use actix_web::{delete, get, post, put, web, HttpResponse, Scope};
 use serde_json::json;
 use tracing::info;
 
 use crate::application::{blog_service::BlogService, error::ApplicationError};
 use crate::data::post_repository::PostgresPostRepository;
 use crate::domain::post::Post;
-use crate::presentation::http::dto::GetPostsQueryParams;
 use crate::presentation::{
   auth::AuthenticatedUser,
-  http::dto::{CreatePostRequest, UpdatePostRequest},
+  http::dto::{CreatePostRequest, GetPostsQueryParams, UpdatePostRequest},
 };
 
-pub fn configure_protected(cfg: &mut web::ServiceConfig) {
-  cfg.service(create_post).service(update_post);
-}
-
-pub fn configure_public(cfg: &mut web::ServiceConfig) {
-  cfg.service(get_post).service(get_posts);
-}
-
-fn ensure_owner(
+pub fn ensure_owner(
   account: &Post,
   user: &AuthenticatedUser,
 ) -> Result<(), ApplicationError> {
@@ -31,7 +22,7 @@ fn ensure_owner(
 }
 
 #[post("/posts")]
-async fn create_post(
+pub async fn create_post(
   blog_service: web::Data<BlogService<PostgresPostRepository>>,
   payload: web::Json<CreatePostRequest>,
   user: AuthenticatedUser,
@@ -51,7 +42,7 @@ async fn create_post(
 }
 
 #[get("/posts/{id}")]
-async fn get_post(
+pub async fn get_post(
   blog_service: web::Data<BlogService<PostgresPostRepository>>,
   path: web::Path<i64>,
 ) -> Result<HttpResponse, ApplicationError> {
@@ -62,7 +53,7 @@ async fn get_post(
 }
 
 #[put("/posts/{id}")]
-async fn update_post(
+pub async fn update_post(
   blog_service: web::Data<BlogService<PostgresPostRepository>>,
   path: web::Path<i64>,
   user: AuthenticatedUser,
@@ -94,7 +85,7 @@ async fn update_post(
 }
 
 #[delete("/posts/{id}")]
-async fn delete_post(
+pub async fn delete_post(
   blog_service: web::Data<BlogService<PostgresPostRepository>>,
   path: web::Path<i64>,
   user: AuthenticatedUser,
@@ -110,7 +101,7 @@ async fn delete_post(
 }
 
 #[get("/posts")]
-async fn get_posts(
+pub async fn get_posts(
   blog_service: web::Data<BlogService<PostgresPostRepository>>,
   query_params: web::Query<GetPostsQueryParams>,
 ) -> Result<HttpResponse, ApplicationError> {

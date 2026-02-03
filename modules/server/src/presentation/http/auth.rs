@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, Responder, post, web};
+use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use chrono::Utc;
 use serde_json::json;
 use tracing::info;
@@ -9,12 +9,8 @@ use crate::presentation::http::dto::{
   CreateUserRequest, LoginRequest, TokenResponse,
 };
 
-pub fn configure(cfg: &mut web::ServiceConfig) {
-  cfg.service(health).service(register).service(login);
-}
-
-#[post("/health")]
-async fn health() -> impl Responder {
+#[get("/health")]
+pub async fn health() -> impl Responder {
   HttpResponse::Ok().json(json!({
     "status": "ok",
     "timestamp": Utc::now(),
@@ -22,15 +18,15 @@ async fn health() -> impl Responder {
 }
 
 #[post("/auth/register")]
-async fn register(
+pub async fn register(
   service: web::Data<AuthService<PostgresUserRepository>>,
   payload: web::Json<CreateUserRequest>,
 ) -> Result<impl Responder, ApplicationError> {
   let user = service
     .register(
       payload.email.clone(),
-      payload.username.clone(),
       payload.password.clone(),
+      payload.username.clone(),
     )
     .await?;
 
@@ -44,7 +40,7 @@ async fn register(
 }
 
 #[post("/auth/login")]
-async fn login(
+pub async fn login(
   service: web::Data<AuthService<PostgresUserRepository>>,
   payload: web::Json<LoginRequest>,
 ) -> Result<impl Responder, ApplicationError> {

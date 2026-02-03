@@ -1,11 +1,11 @@
 use std::cell::RefCell;
-use std::future::{Ready, ready};
+use std::future::{ready, Ready};
 use std::rc::Rc;
 use std::task::{Context, Poll};
 
 use actix_service::{Service, Transform};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
-use actix_web::{Error, HttpMessage, web};
+use actix_web::{web, Error, HttpMessage};
 use futures_util::future::LocalBoxFuture;
 
 use crate::application::auth_service::AuthService;
@@ -13,6 +13,7 @@ use crate::data::user_repository::PostgresUserRepository;
 use crate::infrastructure::jwt::JwtKeys;
 use crate::presentation::auth::extract_user_from_token;
 
+#[derive(Clone)]
 pub struct JwtAuthMiddleware {
   keys: JwtKeys,
 }
