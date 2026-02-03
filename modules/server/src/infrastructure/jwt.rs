@@ -1,27 +1,28 @@
-use crate::infrastructure::constants::TOKEN_EXPIRATION_HOURS;
 use argon2::{
-  Argon2,
   password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+  Argon2,
 };
 use jsonwebtoken::{
-  DecodingKey, EncodingKey, Header, Validation, decode, encode,
+  decode, encode, DecodingKey, EncodingKey, Header, Validation,
 };
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
 
+use crate::infrastructure::constants::TOKEN_EXPIRATION_HOURS;
+
 #[derive(Clone)]
-pub struct JwtKeys {
+pub struct JwtService {
   secret: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
   pub user_id: i64,
+  pub username: String,
   pub exp: usize,
-  pub iat: usize,
 }
 
-impl JwtKeys {
+impl JwtService {
   pub fn new(secret: String) -> Self {
     Self { secret }
   }
@@ -29,14 +30,15 @@ impl JwtKeys {
   pub fn generate_token(
     &self,
     user_id: i64,
+    username: String,
   ) -> Result<String, jsonwebtoken::errors::Error> {
     let claims = Claims {
       user_id,
+      username,
       exp: chrono::Utc::now()
         .checked_add_signed(chrono::Duration::hours(TOKEN_EXPIRATION_HOURS))
         .unwrap()
         .timestamp() as usize,
-      iat: chrono::Utc::now().timestamp() as usize,
     };
     encode(
       &Header::default(),

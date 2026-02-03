@@ -3,24 +3,24 @@ use std::sync::Arc;
 use crate::application::error::ApplicationError;
 use crate::data::user_repository::UserRepository;
 use crate::domain::user::User;
-use crate::infrastructure::jwt::{JwtKeys, hash_password, verify_password};
+use crate::infrastructure::jwt::{hash_password, verify_password, JwtService};
 
 #[derive(Clone)]
 pub struct AuthService<R: UserRepository + 'static> {
   repo: Arc<R>,
-  keys: JwtKeys,
+  jwt_service: JwtService,
 }
 
 impl<R> AuthService<R>
 where
   R: UserRepository + 'static,
 {
-  pub fn new(repo: Arc<R>, keys: JwtKeys) -> Self {
-    Self { repo, keys }
+  pub fn new(repo: Arc<R>, jwt_service: JwtService) -> Self {
+    Self { repo, jwt_service }
   }
 
-  pub fn keys(&self) -> &JwtKeys {
-    &self.keys
+  pub fn keys(&self) -> &JwtService {
+    &self.jwt_service
   }
 
   // TODO Check if it works
@@ -67,8 +67,8 @@ where
     }
 
     self
-      .keys
-      .generate_token(user.id)
+      .jwt_service
+      .generate_token(user.id, user.username)
       .map_err(|err| ApplicationError::Internal(err.to_string()))
   }
 }

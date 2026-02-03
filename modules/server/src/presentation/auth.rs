@@ -1,17 +1,18 @@
-use crate::application::auth_service::AuthService;
-use crate::data::user_repository::PostgresUserRepository;
-use crate::infrastructure::jwt::JwtKeys;
+use std::future::{ready, Ready};
+
 use actix_web::dev::Payload;
 use actix_web::{
-  Error, FromRequest, HttpMessage, HttpRequest, error::ErrorUnauthorized,
+  error::ErrorUnauthorized, Error, FromRequest, HttpMessage, HttpRequest,
 };
-use std::future::{Ready, ready};
+
+use crate::application::auth_service::AuthService;
+use crate::data::user_repository::PostgresUserRepository;
+use crate::infrastructure::jwt::JwtService;
 
 #[derive(Debug, Clone)]
 pub struct AuthenticatedUser {
-  pub id: i64,
-  #[allow(dead_code)]
-  pub email: String,
+  pub user_id: i64,
+  pub username: String,
 }
 
 impl FromRequest for AuthenticatedUser {
@@ -28,7 +29,7 @@ impl FromRequest for AuthenticatedUser {
 
 pub async fn extract_user_from_token(
   token: &str,
-  keys: &JwtKeys,
+  keys: &JwtService,
   auth_service: &AuthService<PostgresUserRepository>,
 ) -> Result<AuthenticatedUser, Error> {
   let claims = keys
@@ -41,7 +42,7 @@ pub async fn extract_user_from_token(
     .map_err(|_| ErrorUnauthorized("user not found"))?;
 
   Ok(AuthenticatedUser {
-    id: user.id,
-    email: user.email,
+    user_id: user.id,
+    username: user.email,
   })
 }

@@ -1,25 +1,23 @@
-use actix_web::cookie::time::macros::offset;
-use actix_web::{HttpResponse, Scope, delete, get, post, put, web};
-use serde_json::json;
 use std::cmp::min;
+
+use actix_web::{delete, get, post, put, web, HttpResponse};
+use serde_json::json;
 use tracing::info;
 
 use crate::application::{blog_service::BlogService, error::ApplicationError};
 use crate::data::post_repository::PostgresPostRepository;
 use crate::domain::post::Post;
-use crate::presentation::http::constants::{
-  QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET,
-};
 use crate::presentation::{
   auth::AuthenticatedUser,
+  http::constants::{QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET},
   http::dto::{CreatePostRequest, GetPostsQueryParams, UpdatePostRequest},
 };
 
 pub fn ensure_owner(
-  account: &Post,
+  post: &Post,
   user: &AuthenticatedUser,
 ) -> Result<(), ApplicationError> {
-  if account.id != user.id {
+  if post.author_id != user.user_id {
     Err(ApplicationError::Forbidden)
   } else {
     Ok(())
@@ -33,11 +31,11 @@ pub async fn create_post(
   user: AuthenticatedUser,
 ) -> Result<HttpResponse, ApplicationError> {
   let post = blog_service
-    .create_post(payload.title.clone(), payload.content.clone(), user.id)
+    .create_post(payload.title.clone(), payload.content.clone(), user.user_id)
     .await?;
 
   info!(
-    user_id = %user.id,
+    user_id = %user.user_id,
     title = %payload.title,
     content = %payload.content,
     "Post created: "
@@ -76,12 +74,12 @@ pub async fn update_post(
       id,
       update_post_data.title,
       update_post_data.content,
-      user.id,
+      user.user_id,
     )
     .await?;
 
   info!(
-    user_id = %user.id,
+    user_id = %user.user_id,
     post_id = post.id,
     "Post updated"
   );

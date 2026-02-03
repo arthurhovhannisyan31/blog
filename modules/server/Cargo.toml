@@ -12,6 +12,7 @@ proto-generator = { path = "../proto-generator" }
 actix-cors = "0.6"
 actix-web = "4"
 actix-service = "2"
+actix-web-httpauth = "0.8.2"
 anyhow.workspace = true
 argon2 = "0.5"
 async-trait = "0.1"
@@ -26,7 +27,6 @@ sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "chron
 thiserror.workspace = true
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "chrono", "time"] }
-actix-web-httpauth = "0.8.2"
 
 [lints]
 workspace = true
