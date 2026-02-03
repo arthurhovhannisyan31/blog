@@ -1,10 +1,15 @@
-use actix_web::{HttpResponse, Scope, delete, get, post, put, web};
+use actix_web::cookie::time::macros::offset;
+use actix_web::{delete, get, post, put, web, HttpResponse, Scope};
 use serde_json::json;
+use std::cmp::min;
 use tracing::info;
 
 use crate::application::{blog_service::BlogService, error::ApplicationError};
 use crate::data::post_repository::PostgresPostRepository;
 use crate::domain::post::Post;
+use crate::presentation::http::constants::{
+  QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET,
+};
 use crate::presentation::{
   auth::AuthenticatedUser,
   http::dto::{CreatePostRequest, GetPostsQueryParams, UpdatePostRequest},
@@ -106,16 +111,29 @@ pub async fn get_posts(
   query_params: web::Query<GetPostsQueryParams>,
 ) -> Result<HttpResponse, ApplicationError> {
   let params = query_params.into_inner();
-  let limit = params.limit.unwrap_or(10);
-  let offset = params.offset.unwrap_or(0);
-  let total = blog_service.get_posts_count().await?;
-  let posts = blog_service.get_posts(limit, offset).await?;
-  let next_limit = total.saturating_sub(limit);
+  let limit = params.limit.unwrap_or(QUERY_LIMIT);
+  let offset = params.offset.unwrap_or(QUERY_OFFSET);
+
+  // TODO Che how negative numbers will be treated
+
+  // if limit < 0 || offset < 0 {
+  //   return Err(ApplicationError::Validation(
+  //     "Limit and offset must be positive values".to_string(),
+  //   ));
+  // }
+
+  let total = blog_service.get_posts_count().await? as u64;
+
+  // TODO Check if range inclusive
+  let next_offset = min(total, limit);
+  let next_limit = next_offset + QUERY_LIMIT_STEP;
+  let next_limit = if next_limit > total { 0 } else { next_limit };
+  let posts = blog_service.get_posts(limit as i64, offset as i64).await?;
 
   Ok(HttpResponse::Ok().json(json!({
     "posts": posts,
     "total": total,
     "limit": next_limit,
-    "offset": limit,
+    "offset": next_offset,
   })))
 }

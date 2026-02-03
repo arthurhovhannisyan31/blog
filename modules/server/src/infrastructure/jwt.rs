@@ -1,9 +1,10 @@
+use crate::infrastructure::constants::TOKEN_EXPIRATION_HOURS;
 use argon2::{
-  Argon2,
   password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+  Argon2,
 };
 use jsonwebtoken::{
-  DecodingKey, EncodingKey, Header, Validation, decode, encode,
+  decode, encode, DecodingKey, EncodingKey, Header, Validation,
 };
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
@@ -32,7 +33,7 @@ impl JwtKeys {
     let claims = Claims {
       user_id,
       exp: chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::hours(1))
+        .checked_add_signed(chrono::Duration::hours(TOKEN_EXPIRATION_HOURS))
         .unwrap()
         .timestamp() as usize,
       iat: chrono::Utc::now().timestamp() as usize,

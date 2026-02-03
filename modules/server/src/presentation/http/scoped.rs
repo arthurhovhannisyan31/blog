@@ -1,8 +1,8 @@
 use crate::presentation::http::{
   auth::{health, login, register},
-  posts::{create_post, get_post, get_posts, update_post},
+  posts::{create_post, delete_post, get_post, get_posts, update_post},
 };
-use actix_web::{Scope, web};
+use actix_web::{web, Scope};
 
 pub fn public_scope() -> Scope {
   web::scope("/v0")
@@ -14,5 +14,8 @@ pub fn public_scope() -> Scope {
 }
 
 pub fn protected_scope() -> Scope {
-  web::scope("/v1").service(create_post).service(update_post)
+  web::scope("/v1")
+    .service(create_post)
+    .service(update_post)
+    .service(delete_post)
 }

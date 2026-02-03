@@ -32,6 +32,6 @@ pub struct UpdatePostRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct GetPostsQueryParams {
-  pub limit: Option<i64>,
-  pub offset: Option<i64>,
+  pub limit: Option<u64>,
+  pub offset: Option<u64>,
 }
