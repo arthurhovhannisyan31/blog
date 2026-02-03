@@ -1,0 +1,1 @@
+pub const TOKEN_EXPIRATION_HOURS: i64 = 24;

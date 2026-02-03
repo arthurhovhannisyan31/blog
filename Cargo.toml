@@ -1,0 +1,28 @@
+[workspace]
+resolver = "3"
+members = [
+    "modules/cli",
+    "modules/client",
+    "modules/common",
+    "modules/proto-generator",
+    "modules/server",
+    "modules/wasm-fe"
+]
+
+[workspace.package]
+version = "0.1.0"
+description = "Blog"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/arthurhovhannisyan31/blog"
+rust-version = "1.93.0"
+
+[workspace.dependencies]
+signal-hook = "0.4"
+anyhow = "1.0"
+thiserror = "2.0"
+
+[workspace.lints]
+
+[profile.release]
+lto = "thin"

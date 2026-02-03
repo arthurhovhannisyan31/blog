@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package blog;
+
+service BlogService {
+  rpc Register(RegisterRequest) returns (User) {}
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc CreatePost(CreatePostRequest) returns (PostResponse);
+  rpc GetPost(GetPostRequest) returns (Post);
+  rpc UpdatePost(UpdatePostRequest) returns (PostResponse);
+  rpc DeletePost(DeletePostRequest) returns (PostResponse);
+}
+
+message RegisterRequest {
+  int64 id = 1;
+}
+message LoginRequest {
+  int64 id = 1;
+}
+message CreatePostRequest {
+  int64 id = 1;
+}
+message GetPostRequest {
+  int64 id = 1;
+}
+message UpdatePostRequest {
+  int64 id = 1;
+}
+message DeletePostRequest {
+  int64 id = 1;
+}
+message AuthResponse {
+  int64 id = 1;
+}
+message User {
+  int64 id = 1;
+}
+message Post {
+  int64 id = 1;
+}
+message PostResponse {
+  int64 id = 1;
+}

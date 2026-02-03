@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+      - name: Setup container env
+        run: |
+          sudo apt-get install protobuf-compiler
       - name: Setup Cargo
         uses: ./.github/actions/setup-cargo
       - name: Setup stable Rust version

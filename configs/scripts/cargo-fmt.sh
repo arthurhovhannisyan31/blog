@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. "./.husky/configs/colors"
+. "./configs/bash/colors"
 
 printf "⚠️ Run cargo fmt check\n\n"
 

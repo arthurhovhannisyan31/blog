@@ -1,0 +1,32 @@
+[package]
+name = "server"
+description = "Blog server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+proto-generator = { path = "../proto-generator" }
+actix-cors = "0.6"
+actix-web = "4"
+actix-service = "2"
+actix-web-httpauth = "0.8.2"
+anyhow.workspace = true
+argon2 = "0.5"
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+jsonwebtoken = "9"
+futures-util = "0.3"
+rand_core = { version = "0.6", features = ["getrandom"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
+thiserror.workspace = true
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "chrono", "time"] }
+
+[lints]
+workspace = true
