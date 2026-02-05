@@ -1792,7 +1792,6 @@ dependencies = [
  "tonic",
  "tonic-prost",
  "tonic-prost-build",
- "tonic-reflection",
 ]
 
 [[package]]
@@ -2126,12 +2125,18 @@ dependencies = [
  "dotenvy",
  "futures-util",
  "jsonwebtoken",
+ "prost",
  "proto-generator",
  "rand_core 0.6.4",
  "serde",
  "serde_json",
  "sqlx",
  "thiserror",
+ "tokio",
+ "tonic",
+ "tonic-prost",
+ "tonic-prost-build",
+ "tonic-reflection",
  "tracing",
  "tracing-subscriber",
 ]
