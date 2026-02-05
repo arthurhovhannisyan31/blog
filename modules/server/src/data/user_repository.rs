@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use sqlx::PgPool;
 use tracing::{error, info};
 
+use crate::data::constants::db_constraints;
 use crate::domain::error::DomainError;
 use crate::domain::user::User;
 
@@ -44,12 +45,12 @@ impl UserRepository for PostgresUserRepository {
     .await
     .map_err(|e| {
       error!("Failed to create user: {}", e);
-
       if e
         .as_database_error()
         .and_then(|db| db.constraint())
-        // TODO test: username unique, email unique
-        .map(|c| c.contains("users_email")) // TODO Test string intersection
+        .map(|c| {
+          c.contains(db_constraints::USERS_USERNAME) || c.contains(db_constraints::USERS_USERNAME)
+        })
         == Some(true)
       {
         DomainError::UserAlreadyExists(user.id)
