@@ -1,11 +1,11 @@
 use proto_generator::blog::{
-  grpc_blog_protected_service_server::GrpcBlogProtectedService, grpc_blog_public_service_server::GrpcBlogPublicService, AuthRequest, AuthResponse,
-  AuthenticatedUser, CreatePostRequest, CreateUserRequest, DeletePostRequest,
-  DeletePostResponse, GetPostRequest,
-  PostResponse,
-  UpdatePostRequest,
+  AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
+  CreateUserRequest, DeletePostRequest, DeletePostResponse, GetPostRequest,
+  PostResponse, UpdatePostRequest,
+  grpc_blog_protected_service_server::GrpcBlogProtectedService,
+  grpc_blog_public_service_server::GrpcBlogPublicService,
 };
-use std::sync::Arc;
+use tonic::metadata::MetadataMap;
 use tonic::{Code, Request, Response, Status};
 use tracing::info;
 
@@ -16,26 +16,23 @@ use crate::data::{
   post_repository::PostgresPostRepository,
   user_repository::PostgresUserRepository,
 };
-use crate::infrastructure::auth::extract_user_from_token;
-use crate::infrastructure::jwt::JwtService;
+use crate::presentation::grpc::constants::USER_ID_HEADER;
+use crate::presentation::http::{dto, posts::ensure_owner};
 
 #[derive(Clone)]
 pub struct GrpcBlogPublicServiceImpl {
   auth_service: AuthService<PostgresUserRepository>,
   blog_service: BlogService<PostgresPostRepository>,
-  jwt_service: Arc<JwtService>,
 }
 
 impl GrpcBlogPublicServiceImpl {
   pub fn new(
     auth_service: AuthService<PostgresUserRepository>,
     blog_service: BlogService<PostgresPostRepository>,
-    jwt_service: Arc<JwtService>,
   ) -> Self {
     Self {
       auth_service,
       blog_service,
-      jwt_service,
     }
   }
 }
@@ -44,19 +41,16 @@ impl GrpcBlogPublicServiceImpl {
 pub struct GrpcBlogProtectedServiceImpl {
   auth_service: AuthService<PostgresUserRepository>,
   blog_service: BlogService<PostgresPostRepository>,
-  jwt_service: Arc<JwtService>,
 }
 
 impl GrpcBlogProtectedServiceImpl {
   pub fn new(
     auth_service: AuthService<PostgresUserRepository>,
     blog_service: BlogService<PostgresPostRepository>,
-    jwt_service: Arc<JwtService>,
   ) -> Self {
     Self {
       auth_service,
       blog_service,
-      jwt_service,
     }
   }
 }
@@ -82,14 +76,9 @@ impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
       .auth_service
       .login(&payload.email, &payload.password)
       .await?;
-    let authenticated_user = AuthenticatedUser {
-      user_id: user.id,
-      email: user.email,
-      username: user.username,
-    };
 
     Ok(Response::new(AuthResponse {
-      user: Some(authenticated_user),
+      user: Some(AuthenticatedUser::from(user)),
       token,
     }))
   }
@@ -97,10 +86,6 @@ impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
     &self,
     request: Request<AuthRequest>,
   ) -> Result<Response<AuthResponse>, Status> {
-    let metadata = request.metadata();
-    let user_id = metadata.get("user_id");
-    info!(user_id = ?user_id, "user_id from header omg!");
-
     let payload = request.into_inner();
     let token = self
       .auth_service
@@ -122,8 +107,40 @@ impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
     &self,
     request: Request<GetPostRequest>,
   ) -> Result<Response<PostResponse>, Status> {
-    todo!()
+    let payload = request.into_inner();
+    let post = self.blog_service.get_post(payload.id).await?;
+
+    Ok(Response::new(PostResponse {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      author_id: post.author_id,
+      created_at: post.created_at.timestamp(),
+      updated_at: post.updated_at.timestamp(),
+    }))
   }
+}
+
+fn read_user_id_from_metadata(metadata: &MetadataMap) -> Result<i64, Status> {
+  let Some(user_id_value) = metadata.get(USER_ID_HEADER) else {
+    return Err(Status::new(Code::Internal, "Failed reading user_id header"));
+  };
+
+  user_id_value
+    .to_str()
+    .map_err(|e| {
+      Status::new(
+        Code::Internal,
+        format!("Failed reading user_id value: {}", e),
+      )
+    })?
+    .parse::<i64>()
+    .map_err(|e| {
+      Status::new(
+        Code::Internal,
+        format!("Failed parsing user_id value: {}", e),
+      )
+    })
 }
 
 #[tonic::async_trait]
@@ -132,67 +149,57 @@ impl GrpcBlogProtectedService for GrpcBlogProtectedServiceImpl {
     &self,
     request: Request<CreatePostRequest>,
   ) -> Result<Response<PostResponse>, Status> {
-    let metadata = request.metadata();
-    let header = metadata
-      .get(actix_web::http::header::AUTHORIZATION.as_str())
-      .ok_or_else(|| {
-        Status::new(Code::Unauthenticated, "Missing authorization header")
-      })?;
-    let token = header
-      .to_str()
-      .map_err(|e| Status::new(Code::InvalidArgument, e.to_string()))?
-      .strip_prefix("Bearer ")
-      .ok_or_else(|| {
-        Status::new(Code::InvalidArgument, "Failed reading token value")
-      })?;
-    let user =
-      extract_user_from_token(token, &self.jwt_service, &self.auth_service)
-        .await
-        .map_err(|e| Status::new(Code::Unauthenticated, e.to_string()))?;
-
+    let user_id = read_user_id_from_metadata(request.metadata())?;
+    let user = self.auth_service.get(user_id).await?;
     let payload = request.into_inner();
     let post = self
       .blog_service
-      .create_post(payload.title.clone(), payload.content.clone(), user.user_id)
+      .create_post(payload.title.clone(), payload.content.clone(), user.id)
       .await?;
 
     info!(
-      user_id = %user.user_id,
+      user_id = %post.author_id,
+      post_id = %post.id,
       title = %payload.title,
       content = %payload.content,
       "Post created: "
     );
 
-    Ok(Response::new(PostResponse {
-      id: post.id,
-      author_id: post.author_id,
-      content: post.content,
-      title: post.title,
-      created_at: post.created_at.timestamp(),
-      updated_at: post.updated_at.timestamp(),
-    }))
-
-    // add middleware to grpc server to return unauthorized
-    // insert stripped token to request on middleware part
-    //     // Добавление метаданных в ответ
-    //     let mut response = Response::new(OrderResponse { order: Some(...) });
-    //     response.metadata_mut().insert(
-    //         "x-request-id",
-    //         Uuid::new_v4().to_string().parse().unwrap(),
-    //     );
-    //
-    //     Ok(response)
+    Ok(Response::new(PostResponse::from(post)))
   }
   async fn update_post(
     &self,
     request: Request<UpdatePostRequest>,
   ) -> Result<Response<PostResponse>, Status> {
-    todo!()
+    let user_id = read_user_id_from_metadata(request.metadata())?;
+    let user = self.auth_service.get(user_id).await?;
+    let payload = request.into_inner();
+    let post = self
+      .blog_service
+      .update_post(payload.id, payload.title, payload.content, user.id)
+      .await?;
+
+    info!(
+      user_id = %user.id,
+      post_id = post.id,
+      "Post updated"
+    );
+
+    Ok(Response::new(PostResponse::from(post)))
   }
   async fn delete_post(
     &self,
     request: Request<DeletePostRequest>,
   ) -> Result<Response<DeletePostResponse>, Status> {
-    todo!()
+    let user_id = read_user_id_from_metadata(request.metadata())?;
+    let user = self.auth_service.get(user_id).await?;
+    let payload = request.into_inner();
+    let post = self.blog_service.get_post(payload.id).await?;
+
+    ensure_owner(&post, &dto::AuthenticatedUser::from(user))?;
+
+    self.blog_service.delete_post(payload.id).await?;
+
+    Ok(Response::new(DeletePostResponse {}))
   }
 }

@@ -1,8 +1,9 @@
+use std::future::{Ready, ready};
+
 use actix_web::dev::Payload;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{Error, FromRequest, HttpMessage, HttpRequest};
 use serde::{Deserialize, Serialize};
-use std::future::{Ready, ready};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateUserRequest {

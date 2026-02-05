@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use crate::presentation::http::dto::AuthenticatedUser;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
   pub id: i64,
@@ -18,6 +20,26 @@ impl User {
       email,
       password_hash,
       created_at: Utc::now(),
+    }
+  }
+}
+
+impl From<User> for proto_generator::blog::AuthenticatedUser {
+  fn from(user: User) -> Self {
+    Self {
+      email: user.email,
+      user_id: user.id,
+      username: user.username,
+    }
+  }
+}
+
+impl From<User> for AuthenticatedUser {
+  fn from(user: User) -> Self {
+    Self {
+      email: user.email,
+      user_id: user.id,
+      username: user.username,
     }
   }
 }
