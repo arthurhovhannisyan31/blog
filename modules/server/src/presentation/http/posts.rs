@@ -8,9 +8,11 @@ use crate::application::{blog_service::BlogService, error::ApplicationError};
 use crate::data::post_repository::PostgresPostRepository;
 use crate::domain::post::Post;
 use crate::presentation::{
-  auth::AuthenticatedUser,
   http::constants::{QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET},
-  http::dto::{CreatePostRequest, GetPostsQueryParams, UpdatePostRequest},
+  http::dto::{
+    AuthenticatedUser, CreatePostRequest, GetPostsQueryParams,
+    UpdatePostRequest,
+  },
 };
 
 pub fn ensure_owner(
@@ -50,9 +52,9 @@ pub async fn get_post(
   path: web::Path<i64>,
 ) -> Result<HttpResponse, ApplicationError> {
   let id = path.into_inner();
-  let post_data = blog_service.get_post(id).await?;
+  let post = blog_service.get_post(id).await?;
 
-  Ok(HttpResponse::Ok().json(post_data))
+  Ok(HttpResponse::Ok().json(post))
 }
 
 #[put("/posts/{id}")]
