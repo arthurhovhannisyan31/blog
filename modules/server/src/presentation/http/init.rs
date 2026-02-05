@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use actix_web::{
-  dev::Server, middleware::{DefaultHeaders, Logger},
+  App, HttpServer,
+  dev::Server,
+  middleware::{DefaultHeaders, Logger},
   web,
-  App,
-  HttpServer,
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 

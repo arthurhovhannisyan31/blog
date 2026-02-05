@@ -2,9 +2,10 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use proto_generator::blog::{
-  FILE_DESCRIPTOR, grpc_blog_service_server::GrpcBlogServiceServer,
+  grpc_blog_service_server::GrpcBlogServiceServer, FILE_DESCRIPTOR,
 };
 use tonic::transport::{Error, Server};
+use tonic_middleware::InterceptorFor;
 use tonic_reflection::server::Builder;
 
 use crate::application::{
@@ -15,6 +16,9 @@ use crate::data::{
   user_repository::PostgresUserRepository,
 };
 use crate::infrastructure::{config::AppConfig, jwt::JwtService};
+use crate::presentation::grpc::auth::{
+  AuthInterceptor, AuthValidationServiceImpl,
+};
 use crate::presentation::grpc::server::GrpcBlogServiceImpl;
 
 pub fn init_grpc_server(
@@ -23,6 +27,13 @@ pub fn init_grpc_server(
   jwt_service: Arc<JwtService>,
   config: &AppConfig,
 ) -> impl Future<Output = Result<(), Error>> {
+  let auth_interceptor = AuthInterceptor {
+    auth_service: AuthValidationServiceImpl::new(
+      auth_service.clone(),
+      jwt_service.clone(),
+    ),
+  };
+
   let grpc_service =
     GrpcBlogServiceImpl::new(auth_service, blog_service, jwt_service);
 
@@ -38,7 +49,11 @@ pub fn init_grpc_server(
 
   let grpc_server = Server::builder()
     .add_service(grpc_reflection_service)
-    .add_service(GrpcBlogServiceServer::new(grpc_service))
+    .add_service(InterceptorFor::new(
+      GrpcBlogServiceServer::new(grpc_service),
+      auth_interceptor,
+    ))
+    // .add_service(GrpcBlogServiceServer::new(grpc_service))
     .serve(grpc_addr);
 
   grpc_server

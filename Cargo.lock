@@ -2134,6 +2134,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tonic",
+ "tonic-middleware",
  "tonic-prost",
  "tonic-prost-build",
  "tonic-reflection",
@@ -2708,6 +2709,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "tonic-middleware"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28272673571986af2ff4337088c2b7314dc20f45e81c4fe1e75cd78feb619002"
+dependencies = [
+ "async-trait",
+ "futures-util",
+ "tonic",
+ "tower",
 ]
 
 [[package]]

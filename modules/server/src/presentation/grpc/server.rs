@@ -1,7 +1,7 @@
 use proto_generator::blog::{
-  AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
-  CreateUserRequest, DeletePostRequest, DeletePostResponse, GetPostRequest,
-  PostResponse, UpdatePostRequest, grpc_blog_service_server::GrpcBlogService,
+  grpc_blog_service_server::GrpcBlogService, AuthRequest, AuthResponse, AuthenticatedUser,
+  CreatePostRequest, CreateUserRequest, DeletePostRequest, DeletePostResponse,
+  GetPostRequest, PostResponse, UpdatePostRequest,
 };
 use std::sync::Arc;
 use tonic::{Code, Request, Response, Status};
@@ -74,6 +74,10 @@ impl GrpcBlogService for GrpcBlogServiceImpl {
     &self,
     request: Request<AuthRequest>,
   ) -> Result<Response<AuthResponse>, Status> {
+    let metadata = request.metadata();
+    let user_id = metadata.get("user_id");
+    info!(user_id = ?user_id, "user_id from header omg!");
+
     let payload = request.into_inner();
     let token = self
       .auth_service
@@ -96,7 +100,6 @@ impl GrpcBlogService for GrpcBlogServiceImpl {
     request: Request<CreatePostRequest>,
   ) -> Result<Response<PostResponse>, Status> {
     let metadata = request.metadata();
-
     let header = metadata
       .get(actix_web::http::header::AUTHORIZATION.as_str())
       .ok_or_else(|| {
