@@ -1,11 +1,11 @@
 use actix_web::dev::ServiceRequest;
 use actix_web::{Error, HttpMessage, error, web};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
+use std::sync::Arc;
 
 use crate::application::auth_service::AuthService;
 use crate::data::user_repository::PostgresUserRepository;
-use crate::infrastructure::jwt::JwtService;
-use crate::presentation::auth::extract_user_from_token;
+use crate::infrastructure::{auth::extract_user_from_token, jwt::JwtService};
 
 pub async fn jwt_validator(
   req: ServiceRequest,
@@ -24,7 +24,7 @@ pub async fn jwt_validator(
       req,
     ));
   };
-  let Some(jwt_service) = req.app_data::<web::Data<JwtService>>().cloned()
+  let Some(jwt_service) = req.app_data::<web::Data<Arc<JwtService>>>().cloned()
   else {
     return Err((
       error::ErrorInternalServerError("JwtService is missing"),

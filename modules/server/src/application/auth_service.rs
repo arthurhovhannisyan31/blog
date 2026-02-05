@@ -7,15 +7,15 @@ use crate::infrastructure::jwt::{JwtService, hash_password, verify_password};
 
 #[derive(Clone)]
 pub struct AuthService<R: UserRepository + 'static> {
-  repo: Arc<R>,
-  jwt_service: JwtService,
+  repo: R,
+  jwt_service: Arc<JwtService>,
 }
 
 impl<R> AuthService<R>
 where
   R: UserRepository + 'static,
 {
-  pub fn new(repo: Arc<R>, jwt_service: JwtService) -> Self {
+  pub fn new(repo: R, jwt_service: Arc<JwtService>) -> Self {
     Self { repo, jwt_service }
   }
 
@@ -31,6 +31,18 @@ where
       .find_by_id(id)
       .await?
       .ok_or_else(|| ApplicationError::NotFound(format!("user {}", id)))
+  }
+
+  // #[instrument(skip(self))]
+  pub async fn get_by_email(
+    &self,
+    email: &str,
+  ) -> Result<User, ApplicationError> {
+    self
+      .repo
+      .find_by_email(&email.to_lowercase())
+      .await?
+      .ok_or_else(|| ApplicationError::NotFound(format!("user {}", email)))
   }
 
   // #[instrument(skip(self))]
@@ -54,11 +66,9 @@ where
     password: &str,
   ) -> Result<String, ApplicationError> {
     let user = self
-      .repo
-      .find_by_email(&email.to_lowercase())
+      .get_by_email(&email.to_lowercase())
       .await
-      .map_err(ApplicationError::from)?
-      .ok_or_else(|| ApplicationError::Unauthorized)?;
+      .map_err(ApplicationError::from)?;
 
     let password_valid = verify_password(password, &user.password_hash)
       .map_err(|_| ApplicationError::Unauthorized)?;

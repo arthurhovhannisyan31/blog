@@ -1,18 +1,17 @@
 use crate::application::error::ApplicationError;
 use crate::data::post_repository::PostRepository;
 use crate::domain::post::Post;
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct BlogService<R: PostRepository + 'static> {
-  repo: Arc<R>,
+  repo: R,
 }
 
 impl<R> BlogService<R>
 where
   R: PostRepository + 'static,
 {
-  pub fn new(repo: Arc<R>) -> Self {
+  pub fn new(repo: R) -> Self {
     Self { repo }
   }
 
