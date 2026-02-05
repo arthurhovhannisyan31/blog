@@ -1,8 +1,6 @@
 use actix_cors::Cors;
 
-use crate::infrastructure::config::AppConfig;
-
-pub fn build_cors(config: &AppConfig) -> Cors {
+pub fn build_cors(cors_origins: &Vec<String>) -> Cors {
   let mut cors = Cors::default()
     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
     .allowed_headers(vec![
@@ -12,7 +10,7 @@ pub fn build_cors(config: &AppConfig) -> Cors {
     .supports_credentials()
     .max_age(3600);
 
-  for origin in &config.cors_origins {
+  for origin in cors_origins {
     cors = cors.allowed_origin(origin);
   }
 

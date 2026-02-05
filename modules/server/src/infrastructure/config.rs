@@ -3,7 +3,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
   pub host: String,
-  pub port: u16,
+  pub http_port: u16,
+  pub grpc_port: u16,
   pub database_url: String,
   pub jwt_secret: String,
   #[serde(default)]
@@ -15,8 +16,12 @@ impl AppConfig {
     dotenvy::dotenv().ok();
 
     let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
-    let port = std::env::var("PORT")
+    let http_port = std::env::var("HTTP_PORT")
       .unwrap_or_else(|_| "8080".into())
+      .parse()
+      .map_err(|e| anyhow::anyhow!("invalid PORT: {}", e))?;
+    let grpc_port = std::env::var("GRPC_PORT")
+      .unwrap_or_else(|_| "50051".into())
       .parse()
       .map_err(|e| anyhow::anyhow!("invalid PORT: {}", e))?;
     let database_url = std::env::var("DATABASE_URL")
@@ -33,7 +38,8 @@ impl AppConfig {
 
     Ok(Self {
       host,
-      port,
+      http_port,
+      grpc_port,
       database_url,
       jwt_secret,
       cors_origins,
