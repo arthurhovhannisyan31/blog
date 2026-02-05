@@ -2,14 +2,17 @@ syntax = "proto3";
 
 package blog;
 
-service GrpcBlogService {
+service GrpcBlogPublicService {
   rpc Register(CreateUserRequest) returns (AuthResponse);
   rpc Login(AuthRequest) returns (AuthResponse);
-  rpc CreatePost(CreatePostRequest) returns (PostResponse);
   rpc GetPost(GetPostRequest) returns (PostResponse);
+}
+service GrpcBlogProtectedService {
+  rpc CreatePost(CreatePostRequest) returns (PostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (PostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
 }
+
 // Auth
 message CreateUserRequest {
   string username = 1;

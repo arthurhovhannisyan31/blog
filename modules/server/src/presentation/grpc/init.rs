@@ -2,7 +2,9 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use proto_generator::blog::{
-  grpc_blog_service_server::GrpcBlogServiceServer, FILE_DESCRIPTOR,
+  grpc_blog_protected_service_server::GrpcBlogProtectedServiceServer,
+  grpc_blog_public_service_server::GrpcBlogPublicServiceServer,
+  FILE_DESCRIPTOR,
 };
 use tonic::transport::{Error, Server};
 use tonic_middleware::InterceptorFor;
@@ -19,7 +21,9 @@ use crate::infrastructure::{config::AppConfig, jwt::JwtService};
 use crate::presentation::grpc::auth::{
   AuthInterceptor, AuthValidationServiceImpl,
 };
-use crate::presentation::grpc::server::GrpcBlogServiceImpl;
+use crate::presentation::grpc::server::{
+  GrpcBlogProtectedServiceImpl, GrpcBlogPublicServiceImpl,
+};
 
 pub fn init_grpc_server(
   auth_service: AuthService<PostgresUserRepository>,
@@ -34,8 +38,16 @@ pub fn init_grpc_server(
     ),
   };
 
-  let grpc_service =
-    GrpcBlogServiceImpl::new(auth_service, blog_service, jwt_service);
+  let grpc_public_service = GrpcBlogPublicServiceImpl::new(
+    auth_service.clone(),
+    blog_service.clone(),
+    jwt_service.clone(),
+  );
+  let grpc_protected_service = GrpcBlogProtectedServiceImpl::new(
+    auth_service.clone(),
+    blog_service.clone(),
+    jwt_service.clone(),
+  );
 
   let grpc_reflection_service = Builder::configure()
     .register_encoded_file_descriptor_set(FILE_DESCRIPTOR)
@@ -49,11 +61,11 @@ pub fn init_grpc_server(
 
   let grpc_server = Server::builder()
     .add_service(grpc_reflection_service)
+    .add_service(GrpcBlogPublicServiceServer::new(grpc_public_service))
     .add_service(InterceptorFor::new(
-      GrpcBlogServiceServer::new(grpc_service),
+      GrpcBlogProtectedServiceServer::new(grpc_protected_service),
       auth_interceptor,
     ))
-    // .add_service(GrpcBlogServiceServer::new(grpc_service))
     .serve(grpc_addr);
 
   grpc_server

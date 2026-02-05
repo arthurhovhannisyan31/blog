@@ -1,7 +1,9 @@
 use proto_generator::blog::{
-  grpc_blog_service_server::GrpcBlogService, AuthRequest, AuthResponse, AuthenticatedUser,
-  CreatePostRequest, CreateUserRequest, DeletePostRequest, DeletePostResponse,
-  GetPostRequest, PostResponse, UpdatePostRequest,
+  grpc_blog_protected_service_server::GrpcBlogProtectedService, grpc_blog_public_service_server::GrpcBlogPublicService, AuthRequest, AuthResponse,
+  AuthenticatedUser, CreatePostRequest, CreateUserRequest, DeletePostRequest,
+  DeletePostResponse, GetPostRequest,
+  PostResponse,
+  UpdatePostRequest,
 };
 use std::sync::Arc;
 use tonic::{Code, Request, Response, Status};
@@ -18,13 +20,34 @@ use crate::infrastructure::auth::extract_user_from_token;
 use crate::infrastructure::jwt::JwtService;
 
 #[derive(Clone)]
-pub struct GrpcBlogServiceImpl {
+pub struct GrpcBlogPublicServiceImpl {
   auth_service: AuthService<PostgresUserRepository>,
   blog_service: BlogService<PostgresPostRepository>,
   jwt_service: Arc<JwtService>,
 }
 
-impl GrpcBlogServiceImpl {
+impl GrpcBlogPublicServiceImpl {
+  pub fn new(
+    auth_service: AuthService<PostgresUserRepository>,
+    blog_service: BlogService<PostgresPostRepository>,
+    jwt_service: Arc<JwtService>,
+  ) -> Self {
+    Self {
+      auth_service,
+      blog_service,
+      jwt_service,
+    }
+  }
+}
+
+#[derive(Clone)]
+pub struct GrpcBlogProtectedServiceImpl {
+  auth_service: AuthService<PostgresUserRepository>,
+  blog_service: BlogService<PostgresPostRepository>,
+  jwt_service: Arc<JwtService>,
+}
+
+impl GrpcBlogProtectedServiceImpl {
   pub fn new(
     auth_service: AuthService<PostgresUserRepository>,
     blog_service: BlogService<PostgresPostRepository>,
@@ -39,7 +62,7 @@ impl GrpcBlogServiceImpl {
 }
 
 #[tonic::async_trait]
-impl GrpcBlogService for GrpcBlogServiceImpl {
+impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
   async fn register(
     &self,
     request: Request<CreateUserRequest>,
@@ -95,6 +118,16 @@ impl GrpcBlogService for GrpcBlogServiceImpl {
       token,
     }))
   }
+  async fn get_post(
+    &self,
+    request: Request<GetPostRequest>,
+  ) -> Result<Response<PostResponse>, Status> {
+    todo!()
+  }
+}
+
+#[tonic::async_trait]
+impl GrpcBlogProtectedService for GrpcBlogProtectedServiceImpl {
   async fn create_post(
     &self,
     request: Request<CreatePostRequest>,
@@ -149,12 +182,6 @@ impl GrpcBlogService for GrpcBlogServiceImpl {
     //     );
     //
     //     Ok(response)
-  }
-  async fn get_post(
-    &self,
-    request: Request<GetPostRequest>,
-  ) -> Result<Response<PostResponse>, Status> {
-    todo!()
   }
   async fn update_post(
     &self,

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use tonic::body::Body;
 use tonic::codegen::http::{HeaderValue, Request};
-use tonic::{async_trait, Code, Status};
+use tonic::{Code, Status, async_trait};
 use tonic_middleware::RequestInterceptor;
 
 use crate::application::auth_service::AuthService;
