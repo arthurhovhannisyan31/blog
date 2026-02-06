@@ -2,42 +2,59 @@ syntax = "proto3";
 
 package blog;
 
-service BlogService {
-  rpc Register(RegisterRequest) returns (User) {}
-  rpc Login(LoginRequest) returns (AuthResponse);
+service GrpcBlogPublicService {
+  rpc Register(CreateUserRequest) returns (AuthResponse);
+  rpc Login(AuthRequest) returns (AuthResponse);
+  rpc GetPost(GetPostRequest) returns (PostResponse);
+}
+service GrpcBlogProtectedService {
   rpc CreatePost(CreatePostRequest) returns (PostResponse);
-  rpc GetPost(GetPostRequest) returns (Post);
   rpc UpdatePost(UpdatePostRequest) returns (PostResponse);
-  rpc DeletePost(DeletePostRequest) returns (PostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
 }
 
-message RegisterRequest {
-  int64 id = 1;
+// Auth
+message CreateUserRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
 }
-message LoginRequest {
+message AuthenticatedUser {
+  string email = 1;
+  int64 user_id = 2;
+  string username = 3;
+}
+message AuthRequest {
+  string email = 1;
+  string password = 2;
+}
+message AuthResponse {
+  string token = 1;
+  AuthenticatedUser user = 2;
+}
+
+// Post
+message PostResponse {
   int64 id = 1;
+  string title = 2;
+  string content = 3;
+  int64 author_id = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
 }
 message CreatePostRequest {
-  int64 id = 1;
+  string title = 1;
+  string content = 2;
 }
 message GetPostRequest {
   int64 id = 1;
 }
 message UpdatePostRequest {
   int64 id = 1;
+  string title = 2;
+  string content = 3;
 }
 message DeletePostRequest {
   int64 id = 1;
 }
-message AuthResponse {
-  int64 id = 1;
-}
-message User {
-  int64 id = 1;
-}
-message Post {
-  int64 id = 1;
-}
-message PostResponse {
-  int64 id = 1;
-}
+message DeletePostResponse{}

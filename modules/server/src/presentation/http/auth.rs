@@ -6,7 +6,7 @@ use tracing::info;
 use crate::application::{auth_service::AuthService, error::ApplicationError};
 use crate::data::user_repository::PostgresUserRepository;
 use crate::presentation::http::dto::{
-  CreateUserRequest, LoginRequest, TokenResponse,
+  AuthRequest, AuthResponse, AuthenticatedUser, CreateUserRequest,
 };
 
 #[get("/health")]
@@ -29,22 +29,36 @@ pub async fn register(
       payload.username.clone(),
     )
     .await?;
-
   info!(user_id = %user.id, email = %user.email, username = %user.username, "user registered");
 
-  Ok(HttpResponse::Created().json(json!({
-    "user_id": user.id,
-    "email": user.email,
-    "username": user.username
-  })))
+  let token = service.login(&payload.email, &payload.password).await?;
+  let authenticated_user = AuthenticatedUser {
+    user_id: user.id,
+    email: user.email,
+    username: user.username,
+  };
+
+  Ok(HttpResponse::Created().json(AuthResponse {
+    user: authenticated_user,
+    token,
+  }))
 }
 
 #[post("/auth/login")]
 pub async fn login(
   service: web::Data<AuthService<PostgresUserRepository>>,
-  payload: web::Json<LoginRequest>,
+  payload: web::Json<AuthRequest>,
 ) -> Result<impl Responder, ApplicationError> {
-  let jwt = service.login(&payload.email, &payload.password).await?;
+  let token = service.login(&payload.email, &payload.password).await?;
+  let user = service.get_by_email(&payload.email).await?;
+  let authenticated_user = AuthenticatedUser {
+    user_id: user.id,
+    email: user.email,
+    username: user.username,
+  };
 
-  Ok(HttpResponse::Ok().json(TokenResponse { access_token: jwt }))
+  Ok(HttpResponse::Created().json(AuthResponse {
+    user: authenticated_user,
+    token,
+  }))
 }
