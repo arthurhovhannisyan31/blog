@@ -9,7 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 proto-generator = { path = "../proto-generator" }
-actix-cors = "0.6"
+actix-cors = "0.7"
 actix-web = "4"
 actix-service = "2"
 actix-web-httpauth = "0.8.2"
