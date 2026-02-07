@@ -22,11 +22,7 @@ impl GrpcBlogClient {
   fn set_token(&mut self, token: String) {
     self.token = Some(format!("Bearer {}", token));
   }
-}
-
-impl BlogClientImpl for GrpcBlogClient {
-  // fn new(transport: Transport) -> Self {
-  async fn new(addr: String) -> Result<Self, Box<dyn std::error::Error>> {
+  pub async fn new(addr: String) -> Result<Self, Box<dyn std::error::Error>> {
     let public = BlogPublicServiceClient::connect(addr.clone()).await?;
     let protected = BlogProtectedServiceClient::connect(addr).await?;
 
@@ -36,6 +32,11 @@ impl BlogClientImpl for GrpcBlogClient {
       token: None,
     })
   }
+}
+
+impl BlogClientImpl<tonic::Streaming<PostResponse>, EmptyResponse>
+  for GrpcBlogClient
+{
   async fn register(
     &mut self,
     username: String,
@@ -93,6 +94,19 @@ impl BlogClientImpl for GrpcBlogClient {
 
     Ok(response.into_inner())
   }
+  async fn list_posts(
+    &mut self,
+    limit: Option<i64>,
+    offset: Option<i64>,
+  ) -> Result<tonic::Streaming<PostResponse>, Box<dyn Error>> {
+    let request = Request::new(StreamPostsRequest {
+      limit: limit.unwrap_or(POST_STREAM_LIMIT),
+      offset: offset.unwrap_or(POST_STREAM_OFFSET),
+    });
+    let response = self.public.stream_posts(request).await?;
+
+    Ok(response.into_inner())
+  }
   async fn update_post(
     &mut self,
     id: i64,
@@ -118,19 +132,6 @@ impl BlogClientImpl for GrpcBlogClient {
       .metadata_mut()
       .insert("authorization", MetadataValue::try_from(token_value)?);
     let response = self.protected.delete_post(request).await?;
-
-    Ok(response.into_inner())
-  }
-  async fn list_posts(
-    &mut self,
-    limit: Option<i64>,
-    offset: Option<i64>,
-  ) -> Result<tonic::Streaming<PostResponse>, Box<dyn Error>> {
-    let request = Request::new(StreamPostsRequest {
-      limit: limit.unwrap_or(POST_STREAM_LIMIT),
-      offset: offset.unwrap_or(POST_STREAM_OFFSET),
-    });
-    let response = self.public.stream_posts(request).await?;
 
     Ok(response.into_inner())
   }

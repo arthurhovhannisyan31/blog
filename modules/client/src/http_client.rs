@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use common::constants::{http_route, http_scope};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
@@ -5,16 +7,19 @@ use proto_generator::blog::{
 };
 use reqwest::Client;
 use reqwest::header::AUTHORIZATION;
-use std::error::Error;
 
-pub struct HttpClient {
+use crate::client::BlogClientImpl;
+
+pub struct HttpBlogClient {
   pub client: Client,
   pub base_url: String,
   pub token: Option<String>,
 }
 
-impl HttpClient {
-  // Todo take transport as constructor argument
+impl HttpBlogClient {
+  fn set_token(&mut self, token: String) {
+    self.token = Some(format!("Bearer {}", token));
+  }
   fn new(client: Client, base_url: String) -> Self {
     Self {
       client,
@@ -22,9 +27,9 @@ impl HttpClient {
       token: None,
     }
   }
-  fn set_token(&mut self, token: String) {
-    self.token = Some(format!("Bearer {}", token));
-  }
+}
+
+impl BlogClientImpl<Vec<PostResponse>, ()> for HttpBlogClient {
   async fn register(
     &mut self,
     username: String,
@@ -135,7 +140,11 @@ impl HttpClient {
       Err(err) => Err(err.into()),
     }
   }
-  async fn list_post(&mut self) -> Result<Vec<PostResponse>, Box<dyn Error>> {
+  async fn list_posts(
+    &mut self,
+    limit: Option<i64>,
+    offset: Option<i64>,
+  ) -> Result<Vec<PostResponse>, Box<dyn Error>> {
     let url = format!(
       "{}/{}/{}",
       self.base_url.trim_end_matches('/'),

@@ -1,12 +1,8 @@
 use std::future::Future;
 
-use proto_generator::blog::{AuthResponse, EmptyResponse, PostResponse};
+use proto_generator::blog::{AuthResponse, PostResponse};
 
-pub trait BlogClientImpl: Sized {
-  // fn new(transport: Transport) -> Self;
-  fn new(
-    addr: String,
-  ) -> impl Future<Output = Result<Self, Box<dyn std::error::Error>>>;
+pub trait BlogClientImpl<L, D>: Sized {
   fn register(
     &mut self,
     username: String,
@@ -27,6 +23,11 @@ pub trait BlogClientImpl: Sized {
     &mut self,
     id: i64,
   ) -> impl Future<Output = Result<PostResponse, Box<dyn std::error::Error>>>;
+  fn list_posts(
+    &mut self,
+    limit: Option<i64>,
+    offset: Option<i64>,
+  ) -> impl Future<Output = Result<L, Box<dyn std::error::Error>>>;
   fn update_post(
     &mut self,
     id: i64,
@@ -36,12 +37,5 @@ pub trait BlogClientImpl: Sized {
   fn delete_post(
     &mut self,
     id: i64,
-  ) -> impl Future<Output = Result<EmptyResponse, Box<dyn std::error::Error>>>;
-  fn list_posts(
-    &mut self,
-    limit: Option<i64>,
-    offset: Option<i64>,
-  ) -> impl Future<
-    Output = Result<tonic::Streaming<PostResponse>, Box<dyn std::error::Error>>,
-  >;
+  ) -> impl Future<Output = Result<D, Box<dyn std::error::Error>>>;
 }
