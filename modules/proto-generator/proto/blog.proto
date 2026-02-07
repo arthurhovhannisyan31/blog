@@ -62,4 +62,11 @@ message UpdatePostRequest {
 message DeletePostRequest {
   int64 id = 1;
 }
-message EmptyResponse{}
+message EmptyResponse{
+}
+message ListPostResponse {
+  repeated PostResponse posts = 1;
+  int64 total = 2;
+  int64 limit = 3;
+  int64 offset = 4;
+}

@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use common::constants::{POST_STREAM_LIMIT, POST_STREAM_OFFSET};
+use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
   DeletePostRequest, EmptyResponse, GetPostRequest, PostResponse,
@@ -22,7 +22,7 @@ impl GrpcBlogClient {
   fn set_token(&mut self, token: String) {
     self.token = Some(format!("Bearer {}", token));
   }
-  pub async fn new(addr: String) -> Result<Self, Box<dyn std::error::Error>> {
+  pub async fn new(addr: String) -> Result<Self, Box<dyn Error>> {
     let public = BlogPublicServiceClient::connect(addr.clone()).await?;
     let protected = BlogProtectedServiceClient::connect(addr).await?;
 
@@ -96,12 +96,12 @@ impl BlogClientImpl<tonic::Streaming<PostResponse>, EmptyResponse>
   }
   async fn list_posts(
     &mut self,
-    limit: Option<i64>,
-    offset: Option<i64>,
+    limit: Option<u64>,
+    offset: Option<u64>,
   ) -> Result<tonic::Streaming<PostResponse>, Box<dyn Error>> {
     let request = Request::new(StreamPostsRequest {
-      limit: limit.unwrap_or(POST_STREAM_LIMIT),
-      offset: offset.unwrap_or(POST_STREAM_OFFSET),
+      limit: limit.unwrap_or(QUERY_LIMIT) as i64,
+      offset: offset.unwrap_or(QUERY_OFFSET) as i64,
     });
     let response = self.public.stream_posts(request).await?;
 

@@ -1,24 +1,22 @@
-use client::client::BlogClientImpl;
-use client::grpc_client::GrpcBlogClient;
-use tracing::info;
+use client::{client::BlogClientImpl, http_client::HttpBlogClient};
+use reqwest::Client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   tracing_subscriber::fmt().with_env_filter("info").init();
 
-  let mut client =
-    GrpcBlogClient::new("http://127.0.0.1:50051".to_string()).await?;
+  let client = Client::builder()
+    .build()
+    .expect("failed to build http client");
 
-  let mut stream = client.list_posts(None, None).await?;
+  let mut blog_client =
+    HttpBlogClient::new(client, "http://127.0.0.1:8080/api".to_string());
 
-  loop {
-    match stream.message().await? {
-      Some(post) => {
-        info!(post = ?post, "Post: \n\n");
-      }
-      None => break,
-    }
-  }
+  let posts = blog_client.list_posts(None, None).await?;
+
+  // for post in posts {
+  //   info!(post = ?post, "Post: \n\n");
+  // }
 
   // try to run all api calls here
 

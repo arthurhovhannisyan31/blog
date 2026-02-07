@@ -5,6 +5,8 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::{Error, FromRequest, HttpMessage, HttpRequest};
 use serde::{Deserialize, Serialize};
 
+use crate::domain::post::Post;
+
 #[derive(Debug, Deserialize)]
 pub struct CreateUserRequest {
   pub username: String,
@@ -47,6 +49,14 @@ pub struct UpdatePostRequest {
 pub struct GetPostsQueryParams {
   pub limit: Option<u64>,
   pub offset: Option<u64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ListPostResponse {
+  pub posts: Vec<Post>,
+  pub total: u64,
+  pub limit: u64,
+  pub offset: u64,
 }
 
 impl FromRequest for AuthenticatedUser {

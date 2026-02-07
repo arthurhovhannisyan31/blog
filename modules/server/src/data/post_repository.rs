@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use sqlx::{FromRow, PgPool};
+use sqlx::PgPool;
 use tracing::error;
 
-use crate::domain::error::DomainError;
-use crate::domain::post::Post;
+use crate::domain::{error::DomainError, post::Post};
 
 #[async_trait]
 pub trait PostRepository: Send + Sync {

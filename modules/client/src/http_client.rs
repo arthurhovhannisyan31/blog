@@ -1,12 +1,11 @@
 use std::error::Error;
 
-use common::constants::{http_route, http_scope};
+use common::constants::{QUERY_LIMIT, QUERY_OFFSET, http_route, http_scope};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
-  DeletePostRequest, PostResponse, UpdatePostRequest,
+  DeletePostRequest, ListPostResponse, PostResponse, UpdatePostRequest,
 };
-use reqwest::Client;
-use reqwest::header::AUTHORIZATION;
+use reqwest::{Client, header::AUTHORIZATION};
 
 use crate::client::BlogClientImpl;
 
@@ -20,7 +19,7 @@ impl HttpBlogClient {
   fn set_token(&mut self, token: String) {
     self.token = Some(format!("Bearer {}", token));
   }
-  fn new(client: Client, base_url: String) -> Self {
+  pub fn new(client: Client, base_url: String) -> Self {
     Self {
       client,
       base_url,
@@ -29,7 +28,7 @@ impl HttpBlogClient {
   }
 }
 
-impl BlogClientImpl<Vec<PostResponse>, ()> for HttpBlogClient {
+impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
   async fn register(
     &mut self,
     username: String,
@@ -142,20 +141,27 @@ impl BlogClientImpl<Vec<PostResponse>, ()> for HttpBlogClient {
   }
   async fn list_posts(
     &mut self,
-    limit: Option<i64>,
-    offset: Option<i64>,
-  ) -> Result<Vec<PostResponse>, Box<dyn Error>> {
+    limit: Option<u64>,
+    offset: Option<u64>,
+  ) -> Result<ListPostResponse, Box<dyn Error>> {
+    let limit = limit.unwrap_or(QUERY_LIMIT);
+    let offset = offset.unwrap_or(QUERY_OFFSET);
     let url = format!(
       "{}/{}/{}",
       self.base_url.trim_end_matches('/'),
       http_scope::PUBLIC.trim_start_matches('/'),
       http_route::POST.trim_start_matches('/')
     );
-    let resp = self.client.get(url).send().await?;
+    let resp = self
+      .client
+      .get(url)
+      .query(&[("limit", limit), ("offset", offset)])
+      .send()
+      .await?;
 
     match resp.error_for_status() {
       Ok(res) => {
-        let data = res.json::<Vec<PostResponse>>().await?;
+        let data = res.json::<ListPostResponse>().await?;
 
         Ok(data)
       }

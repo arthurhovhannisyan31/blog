@@ -1,5 +1,6 @@
-pub const POST_STREAM_LIMIT: i64 = 10;
-pub const POST_STREAM_OFFSET: i64 = 0;
+pub const QUERY_LIMIT: u64 = 10;
+pub const QUERY_LIMIT_STEP: u64 = 10;
+pub const QUERY_OFFSET: u64 = 0;
 
 pub mod http_scope {
   pub const PROTECTED: &str = "/v1";

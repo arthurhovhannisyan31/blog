@@ -1,5 +1,4 @@
-use client::client::BlogClientImpl;
-use client::grpc_client::GrpcBlogClient;
+use client::{client::BlogClientImpl, grpc_client::GrpcBlogClient};
 use tracing::info;
 
 #[tokio::main]

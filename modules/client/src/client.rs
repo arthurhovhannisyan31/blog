@@ -25,8 +25,8 @@ pub trait BlogClientImpl<L, D>: Sized {
   ) -> impl Future<Output = Result<PostResponse, Box<dyn std::error::Error>>>;
   fn list_posts(
     &mut self,
-    limit: Option<i64>,
-    offset: Option<i64>,
+    limit: Option<u64>,
+    offset: Option<u64>,
   ) -> impl Future<Output = Result<L, Box<dyn std::error::Error>>>;
   fn update_post(
     &mut self,

@@ -1,18 +1,15 @@
 use std::cmp::min;
 
 use actix_web::{HttpResponse, delete, get, post, put, web};
-use serde_json::json;
+use common::constants::{QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET};
 use tracing::info;
 
 use crate::application::{blog_service::BlogService, error::ApplicationError};
 use crate::data::post_repository::PostgresPostRepository;
 use crate::domain::post::Post;
-use crate::presentation::{
-  http::constants::{QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET},
-  http::dto::{
-    AuthenticatedUser, CreatePostRequest, GetPostsQueryParams,
-    UpdatePostRequest,
-  },
+use crate::presentation::http::dto::{
+  AuthenticatedUser, CreatePostRequest, GetPostsQueryParams, ListPostResponse,
+  UpdatePostRequest,
 };
 
 pub fn ensure_owner(
@@ -55,6 +52,29 @@ pub async fn get_post(
   let post = blog_service.get_post(id).await?;
 
   Ok(HttpResponse::Ok().json(post))
+}
+
+#[get("/posts")]
+pub async fn list_posts(
+  blog_service: web::Data<BlogService<PostgresPostRepository>>,
+  query_params: web::Query<GetPostsQueryParams>,
+) -> Result<HttpResponse, ApplicationError> {
+  let params = query_params.into_inner();
+  let limit = params.limit.unwrap_or(QUERY_LIMIT);
+  let offset = params.offset.unwrap_or(QUERY_OFFSET);
+
+  let total = blog_service.get_posts_count().await? as u64;
+  let posts = blog_service.list_posts(limit as i64, offset as i64).await?;
+
+  let next_offset = min(total, limit);
+  let next_limit = min(next_offset + QUERY_LIMIT_STEP, total);
+
+  Ok(HttpResponse::Ok().json(ListPostResponse {
+    posts,
+    total,
+    limit: next_limit,
+    offset: next_offset,
+  }))
 }
 
 #[put("/posts/{id}")]
@@ -103,27 +123,4 @@ pub async fn delete_post(
   blog_service.delete_post(id).await?;
 
   Ok(HttpResponse::NoContent().finish())
-}
-
-#[get("/posts")]
-pub async fn list_posts(
-  blog_service: web::Data<BlogService<PostgresPostRepository>>,
-  query_params: web::Query<GetPostsQueryParams>,
-) -> Result<HttpResponse, ApplicationError> {
-  let params = query_params.into_inner();
-  let limit = params.limit.unwrap_or(QUERY_LIMIT);
-  let offset = params.offset.unwrap_or(QUERY_OFFSET);
-
-  let total = blog_service.get_posts_count().await? as u64;
-  let posts = blog_service.list_posts(limit as i64, offset as i64).await?;
-
-  let next_offset = min(total, limit);
-  let next_limit = min(next_offset + QUERY_LIMIT_STEP, total);
-
-  Ok(HttpResponse::Ok().json(json!({
-    "posts": posts,
-    "total": total,
-    "limit": next_limit,
-    "offset": next_offset,
-  })))
 }
