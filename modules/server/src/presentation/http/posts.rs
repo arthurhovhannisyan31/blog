@@ -106,7 +106,7 @@ pub async fn delete_post(
 }
 
 #[get("/posts")]
-pub async fn get_posts(
+pub async fn list_posts(
   blog_service: web::Data<BlogService<PostgresPostRepository>>,
   query_params: web::Query<GetPostsQueryParams>,
 ) -> Result<HttpResponse, ApplicationError> {
@@ -115,7 +115,7 @@ pub async fn get_posts(
   let offset = params.offset.unwrap_or(QUERY_OFFSET);
 
   let total = blog_service.get_posts_count().await? as u64;
-  let posts = blog_service.get_posts(limit as i64, offset as i64).await?;
+  let posts = blog_service.list_posts(limit as i64, offset as i64).await?;
 
   let next_offset = min(total, limit);
   let next_limit = min(next_offset + QUERY_LIMIT_STEP, total);

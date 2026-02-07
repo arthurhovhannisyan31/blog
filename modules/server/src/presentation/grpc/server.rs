@@ -1,10 +1,12 @@
 use proto_generator::blog::{
   AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
-  CreateUserRequest, DeletePostRequest, DeletePostResponse, GetPostRequest,
-  PostResponse, UpdatePostRequest,
-  grpc_blog_protected_service_server::GrpcBlogProtectedService,
-  grpc_blog_public_service_server::GrpcBlogPublicService,
+  CreateUserRequest, DeletePostRequest, EmptyResponse, GetPostRequest,
+  PostResponse, StreamPostsRequest, UpdatePostRequest,
+  blog_protected_service_server::BlogProtectedService,
+  blog_public_service_server::BlogPublicService,
 };
+use std::time::Duration;
+use tonic::codegen::tokio_stream;
 use tonic::metadata::MetadataMap;
 use tonic::{Code, Request, Response, Status};
 use tracing::info;
@@ -56,25 +58,25 @@ impl GrpcBlogProtectedServiceImpl {
 }
 
 #[tonic::async_trait]
-impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
+impl BlogPublicService for GrpcBlogPublicServiceImpl {
   async fn register(
     &self,
     request: Request<CreateUserRequest>,
   ) -> Result<Response<AuthResponse>, Status> {
-    let payload = request.into_inner();
+    let request = request.into_inner();
     let user = self
       .auth_service
       .register(
-        payload.email.clone(),
-        payload.password.clone(),
-        payload.username.clone(),
+        request.email.clone(),
+        request.password.clone(),
+        request.username.clone(),
       )
       .await?;
     info!(user_id = %user.id, email = %user.email, username = %user.username, "user registered");
 
     let token = self
       .auth_service
-      .login(&payload.email, &payload.password)
+      .login(&request.email, &request.password)
       .await?;
 
     Ok(Response::new(AuthResponse {
@@ -86,12 +88,12 @@ impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
     &self,
     request: Request<AuthRequest>,
   ) -> Result<Response<AuthResponse>, Status> {
-    let payload = request.into_inner();
+    let request = request.into_inner();
     let token = self
       .auth_service
-      .login(&payload.email, &payload.password)
+      .login(&request.email, &request.password)
       .await?;
-    let user = self.auth_service.get_by_email(&payload.email).await?;
+    let user = self.auth_service.get_by_email(&request.email).await?;
     let authenticated_user = AuthenticatedUser {
       user_id: user.id,
       email: user.email,
@@ -107,17 +109,42 @@ impl GrpcBlogPublicService for GrpcBlogPublicServiceImpl {
     &self,
     request: Request<GetPostRequest>,
   ) -> Result<Response<PostResponse>, Status> {
-    let payload = request.into_inner();
-    let post = self.blog_service.get_post(payload.id).await?;
+    let request = request.into_inner();
+    let post = self.blog_service.get_post(request.id).await?;
 
-    Ok(Response::new(PostResponse {
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      author_id: post.author_id,
-      created_at: post.created_at.timestamp(),
-      updated_at: post.updated_at.timestamp(),
-    }))
+    Ok(Response::new(PostResponse::from(post)))
+  }
+
+  type StreamPostsStream =
+    tokio_stream::wrappers::ReceiverStream<Result<PostResponse, Status>>;
+
+  async fn stream_posts(
+    &self,
+    request: Request<StreamPostsRequest>,
+  ) -> Result<Response<Self::StreamPostsStream>, Status> {
+    let request = request.into_inner();
+    let list = self
+      .blog_service
+      .list_posts(request.limit, request.offset)
+      .await?;
+    let mapped_list: Vec<PostResponse> =
+      list.into_iter().map(PostResponse::from).collect();
+    let (tx, rx) = tokio::sync::mpsc::channel(128);
+
+    tokio::spawn(async move {
+      for post in &mapped_list {
+        tokio::time::sleep(Duration::from_secs(1)).await;
+
+        if tx.send(Ok(post.clone())).await.is_err() {
+          // Client disconnected
+          return;
+        }
+      }
+    });
+
+    Ok(Response::new(tokio_stream::wrappers::ReceiverStream::new(
+      rx,
+    )))
   }
 }
 
@@ -144,7 +171,7 @@ fn read_user_id_from_metadata(metadata: &MetadataMap) -> Result<i64, Status> {
 }
 
 #[tonic::async_trait]
-impl GrpcBlogProtectedService for GrpcBlogProtectedServiceImpl {
+impl BlogProtectedService for GrpcBlogProtectedServiceImpl {
   async fn create_post(
     &self,
     request: Request<CreatePostRequest>,
@@ -190,7 +217,7 @@ impl GrpcBlogProtectedService for GrpcBlogProtectedServiceImpl {
   async fn delete_post(
     &self,
     request: Request<DeletePostRequest>,
-  ) -> Result<Response<DeletePostResponse>, Status> {
+  ) -> Result<Response<EmptyResponse>, Status> {
     let user_id = read_user_id_from_metadata(request.metadata())?;
     let user = self.auth_service.get(user_id).await?;
     let payload = request.into_inner();
@@ -200,6 +227,6 @@ impl GrpcBlogProtectedService for GrpcBlogProtectedServiceImpl {
 
     self.blog_service.delete_post(payload.id).await?;
 
-    Ok(Response::new(DeletePostResponse {}))
+    Ok(Response::new(EmptyResponse {}))
   }
 }

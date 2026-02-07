@@ -517,6 +517,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "common",
  "proto-generator",
  "reqwest",
  "serde",
@@ -526,6 +527,8 @@ dependencies = [
  "tonic",
  "tonic-prost",
  "tonic-prost-build",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -550,6 +553,9 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "concurrent-queue"
@@ -1941,6 +1947,7 @@ name = "proto-generator"
 version = "0.1.0"
 dependencies = [
  "prost",
+ "serde",
  "tonic",
  "tonic-prost",
  "tonic-prost-build",
@@ -2459,6 +2466,7 @@ dependencies = [
  "argon2",
  "async-trait",
  "chrono",
+ "common",
  "dotenvy",
  "futures-util",
  "jsonwebtoken",

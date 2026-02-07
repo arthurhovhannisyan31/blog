@@ -2,9 +2,8 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use proto_generator::blog::{
-  FILE_DESCRIPTOR,
-  grpc_blog_protected_service_server::GrpcBlogProtectedServiceServer,
-  grpc_blog_public_service_server::GrpcBlogPublicServiceServer,
+  FILE_DESCRIPTOR, blog_protected_service_server::BlogProtectedServiceServer,
+  blog_public_service_server::BlogPublicServiceServer,
 };
 use tonic::transport::{Error, Server};
 use tonic_middleware::InterceptorFor;
@@ -57,9 +56,9 @@ pub fn init_grpc_server(
 
   let grpc_server = Server::builder()
     .add_service(grpc_reflection_service)
-    .add_service(GrpcBlogPublicServiceServer::new(grpc_public_service))
+    .add_service(BlogPublicServiceServer::new(grpc_public_service))
     .add_service(InterceptorFor::new(
-      GrpcBlogProtectedServiceServer::new(grpc_protected_service),
+      BlogProtectedServiceServer::new(grpc_protected_service),
       auth_interceptor,
     ))
     .serve(grpc_addr);
