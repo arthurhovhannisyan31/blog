@@ -10,6 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   tonic_prost_build::configure()
     .file_descriptor_set_path(out_dir.join("proto_descriptor.bin"))
+    .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
     .build_server(true)
     .build_client(true)
     .compile_protos(&["proto/blog.proto"], &["proto/blog"])?;

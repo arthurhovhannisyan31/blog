@@ -2,15 +2,16 @@ syntax = "proto3";
 
 package blog;
 
-service GrpcBlogPublicService {
+service BlogPublicService {
   rpc Register(CreateUserRequest) returns (AuthResponse);
   rpc Login(AuthRequest) returns (AuthResponse);
   rpc GetPost(GetPostRequest) returns (PostResponse);
+  rpc StreamPosts(StreamPostsRequest) returns (stream PostResponse);
 }
-service GrpcBlogProtectedService {
+service BlogProtectedService {
   rpc CreatePost(CreatePostRequest) returns (PostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (PostResponse);
-  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+  rpc DeletePost(DeletePostRequest) returns (EmptyResponse);
 }
 
 // Auth
@@ -49,6 +50,10 @@ message CreatePostRequest {
 message GetPostRequest {
   int64 id = 1;
 }
+message StreamPostsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
 message UpdatePostRequest {
   int64 id = 1;
   string title = 2;
@@ -57,4 +62,4 @@ message UpdatePostRequest {
 message DeletePostRequest {
   int64 id = 1;
 }
-message DeletePostResponse{}
+message EmptyResponse{}
