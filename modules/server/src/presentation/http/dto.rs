@@ -1,8 +1,9 @@
-use std::future::{Ready, ready};
+use std::future::{ready, Ready};
 
-use actix_web::dev::Payload;
-use actix_web::error::ErrorUnauthorized;
-use actix_web::{Error, FromRequest, HttpMessage, HttpRequest};
+use actix_web::{
+  dev::Payload, error::ErrorUnauthorized, Error, FromRequest, HttpMessage,
+  HttpRequest,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::domain::post::Post;
@@ -52,8 +53,18 @@ pub struct GetPostsQueryParams {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct PostResponse {
+  pub id: i64,
+  pub title: String,
+  pub content: String,
+  pub author_id: i64,
+  pub created_at: i64,
+  pub updated_at: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ListPostResponse {
-  pub posts: Vec<Post>,
+  pub posts: Vec<PostResponse>,
   pub total: u64,
   pub limit: u64,
   pub offset: u64,
@@ -67,6 +78,19 @@ impl FromRequest for AuthenticatedUser {
     match req.extensions().get::<AuthenticatedUser>() {
       Some(user) => ready(Ok(user.clone())),
       None => ready(Err(ErrorUnauthorized("missing authenticated user"))),
+    }
+  }
+}
+
+impl From<Post> for PostResponse {
+  fn from(post: Post) -> Self {
+    Self {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      author_id: post.author_id,
+      created_at: post.created_at.timestamp(),
+      updated_at: post.updated_at.timestamp(),
     }
   }
 }
