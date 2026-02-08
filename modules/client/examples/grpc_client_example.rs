@@ -1,5 +1,4 @@
-use client::{client::BlogClientImpl, grpc_client::GrpcBlogClient};
-use tracing::info;
+use client::{AbstractBlogClient, grpc_client::GrpcBlogClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -10,14 +9,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   let mut stream = client.list_posts(None, None).await?;
 
-  loop {
-    match stream.message().await? {
-      Some(post) => {
-        info!(post = ?post, "Post: \n\n");
-      }
-      None => break,
-    }
-  }
+  //
 
   // try to run all api calls here
 

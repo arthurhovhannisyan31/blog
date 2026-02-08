@@ -1,8 +1,8 @@
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 
 use actix_web::{
-  dev::Payload, error::ErrorUnauthorized, Error, FromRequest, HttpMessage,
-  HttpRequest,
+  Error, FromRequest, HttpMessage, HttpRequest, dev::Payload,
+  error::ErrorUnauthorized,
 };
 use serde::{Deserialize, Serialize};
 

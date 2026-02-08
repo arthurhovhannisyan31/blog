@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET, http_route, http_scope};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
@@ -7,34 +5,27 @@ use proto_generator::blog::{
 };
 use reqwest::{Client, header::AUTHORIZATION};
 
-use crate::client::BlogClientImpl;
+use crate::AbstractBlogClient;
+use crate::error::BlogClientError;
 
 pub struct HttpBlogClient {
   pub client: Client,
   pub base_url: String,
-  pub token: Option<String>,
 }
 
 impl HttpBlogClient {
-  fn set_token(&mut self, token: String) {
-    self.token = Some(format!("Bearer {}", token));
-  }
   pub fn new(client: Client, base_url: String) -> Self {
-    Self {
-      client,
-      base_url,
-      token: None,
-    }
+    Self { client, base_url }
   }
 }
 
-impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
+impl AbstractBlogClient for HttpBlogClient {
   async fn register(
     &mut self,
     username: String,
     email: String,
     password: String,
-  ) -> Result<AuthResponse, Box<dyn Error>> {
+  ) -> Result<AuthResponse, BlogClientError> {
     let url = format!(
       "{}/{}/{}",
       self.base_url.trim_end_matches('/'),
@@ -56,7 +47,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     match resp.error_for_status() {
       Ok(res) => {
         let data = res.json::<AuthResponse>().await?;
-        self.set_token(data.token.clone());
+
         Ok(data)
       }
       Err(err) => Err(err.into()),
@@ -66,7 +57,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     &mut self,
     email: String,
     password: String,
-  ) -> Result<AuthResponse, Box<dyn Error>> {
+  ) -> Result<AuthResponse, BlogClientError> {
     let url = format!(
       "{}/{}/{}",
       self.base_url.trim_end_matches('/'),
@@ -83,7 +74,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     match resp.error_for_status() {
       Ok(res) => {
         let data = res.json::<AuthResponse>().await?;
-        self.set_token(data.token.clone());
+
         Ok(data)
       }
       Err(err) => Err(err.into()),
@@ -91,10 +82,10 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
   }
   async fn create_post(
     &mut self,
+    token: &str,
     title: String,
     content: String,
-  ) -> Result<PostResponse, Box<dyn Error>> {
-    let token_value = self.token.clone().unwrap_or_default();
+  ) -> Result<PostResponse, BlogClientError> {
     let url = format!(
       "{}/{}/{}",
       self.base_url.trim_end_matches('/'),
@@ -104,7 +95,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     let resp = self
       .client
       .post(url)
-      .header(AUTHORIZATION, token_value)
+      .header(AUTHORIZATION, token)
       .json(&CreatePostRequest { content, title })
       .send()
       .await?;
@@ -121,7 +112,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
   async fn get_post(
     &mut self,
     id: i64,
-  ) -> Result<PostResponse, Box<dyn Error>> {
+  ) -> Result<PostResponse, BlogClientError> {
     let url = format!(
       "{}/{}/{}/{id}",
       self.base_url.trim_end_matches('/'),
@@ -143,7 +134,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> Result<ListPostResponse, Box<dyn Error>> {
+  ) -> Result<ListPostResponse, BlogClientError> {
     let limit = limit.unwrap_or(QUERY_LIMIT);
     let offset = offset.unwrap_or(QUERY_OFFSET);
     let url = format!(
@@ -170,11 +161,11 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
   }
   async fn update_post(
     &mut self,
+    token: &str,
     id: i64,
     title: String,
     content: String,
-  ) -> Result<PostResponse, Box<dyn Error>> {
-    let token_value = self.token.clone().unwrap_or_default();
+  ) -> Result<PostResponse, BlogClientError> {
     let url = format!(
       "{}/{}/{}/{id}",
       self.base_url.trim_end_matches('/'),
@@ -184,7 +175,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     let resp = self
       .client
       .put(url)
-      .header(AUTHORIZATION, token_value)
+      .header(AUTHORIZATION, token)
       .json(&UpdatePostRequest { id, content, title })
       .send()
       .await?;
@@ -198,8 +189,11 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
       Err(err) => Err(err.into()),
     }
   }
-  async fn delete_post(&mut self, id: i64) -> Result<(), Box<dyn Error>> {
-    let token_value = self.token.clone().unwrap_or_default();
+  async fn delete_post(
+    &mut self,
+    token: &str,
+    id: i64,
+  ) -> Result<(), BlogClientError> {
     let url = format!(
       "{}/{}/{}/{id}",
       self.base_url.trim_end_matches('/'),
@@ -209,7 +203,7 @@ impl BlogClientImpl<ListPostResponse, ()> for HttpBlogClient {
     let resp = self
       .client
       .delete(url)
-      .header(AUTHORIZATION, token_value)
+      .header(AUTHORIZATION, token)
       .json(&DeletePostRequest { id })
       .send()
       .await?;

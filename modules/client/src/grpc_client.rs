@@ -3,46 +3,37 @@ use std::error::Error;
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
-  DeletePostRequest, EmptyResponse, GetPostRequest, PostResponse,
-  StreamPostsRequest, UpdatePostRequest,
+  DeletePostRequest, GetPostRequest, ListPostResponse, ListPostsRequest,
+  PostResponse, UpdatePostRequest,
   blog_protected_service_client::BlogProtectedServiceClient,
   blog_public_service_client::BlogPublicServiceClient,
 };
 use tonic::{Request, metadata::MetadataValue};
 
-use crate::client::BlogClientImpl;
+use crate::AbstractBlogClient;
+use crate::error::BlogClientError;
 
 pub struct GrpcBlogClient {
   pub public: BlogPublicServiceClient<tonic::transport::Channel>,
   pub protected: BlogProtectedServiceClient<tonic::transport::Channel>,
-  pub token: Option<String>,
 }
 
 impl GrpcBlogClient {
-  fn set_token(&mut self, token: String) {
-    self.token = Some(format!("Bearer {}", token));
-  }
   pub async fn new(addr: String) -> Result<Self, Box<dyn Error>> {
     let public = BlogPublicServiceClient::connect(addr.clone()).await?;
     let protected = BlogProtectedServiceClient::connect(addr).await?;
 
-    Ok(Self {
-      public,
-      protected,
-      token: None,
-    })
+    Ok(Self { public, protected })
   }
 }
 
-impl BlogClientImpl<tonic::Streaming<PostResponse>, EmptyResponse>
-  for GrpcBlogClient
-{
+impl AbstractBlogClient for GrpcBlogClient {
   async fn register(
     &mut self,
     username: String,
     email: String,
     password: String,
-  ) -> Result<AuthResponse, Box<dyn Error>> {
+  ) -> Result<AuthResponse, BlogClientError> {
     let response = self
       .public
       .register(Request::new(CreateUserRequest {
@@ -53,35 +44,31 @@ impl BlogClientImpl<tonic::Streaming<PostResponse>, EmptyResponse>
       .await?;
     let data = response.into_inner();
 
-    self.set_token(data.token.clone());
-
     Ok(data)
   }
   async fn login(
     &mut self,
     email: String,
     password: String,
-  ) -> Result<AuthResponse, Box<dyn Error>> {
+  ) -> Result<AuthResponse, BlogClientError> {
     let response = self
       .public
       .login(Request::new(AuthRequest { email, password }))
       .await?;
     let data = response.into_inner();
 
-    self.set_token(data.token.clone());
-
     Ok(data)
   }
   async fn create_post(
     &mut self,
+    token: &str,
     title: String,
     content: String,
-  ) -> Result<PostResponse, Box<dyn Error>> {
-    let token_value = self.token.clone().unwrap_or_default();
+  ) -> Result<PostResponse, BlogClientError> {
     let mut request = Request::new(CreatePostRequest { content, title });
     request
       .metadata_mut()
-      .insert("authorization", MetadataValue::try_from(token_value)?);
+      .insert("authorization", MetadataValue::try_from(token)?);
     let response = self.protected.create_post(request).await?;
 
     Ok(response.into_inner())
@@ -89,7 +76,7 @@ impl BlogClientImpl<tonic::Streaming<PostResponse>, EmptyResponse>
   async fn get_post(
     &mut self,
     id: i64,
-  ) -> Result<PostResponse, Box<dyn Error>> {
+  ) -> Result<PostResponse, BlogClientError> {
     let response = self.public.get_post(GetPostRequest { id }).await?;
 
     Ok(response.into_inner())
@@ -98,41 +85,42 @@ impl BlogClientImpl<tonic::Streaming<PostResponse>, EmptyResponse>
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> Result<tonic::Streaming<PostResponse>, Box<dyn Error>> {
-    let request = Request::new(StreamPostsRequest {
+  ) -> Result<ListPostResponse, BlogClientError> {
+    let request = Request::new(ListPostsRequest {
       limit: limit.unwrap_or(QUERY_LIMIT) as i64,
       offset: offset.unwrap_or(QUERY_OFFSET) as i64,
     });
-    let response = self.public.stream_posts(request).await?;
+    let response = self.public.list_posts(request).await?;
 
     Ok(response.into_inner())
   }
   async fn update_post(
     &mut self,
+    token: &str,
     id: i64,
     title: String,
     content: String,
-  ) -> Result<PostResponse, Box<dyn Error>> {
-    let token_value = self.token.clone().unwrap_or_default();
+  ) -> Result<PostResponse, BlogClientError> {
     let mut request = Request::new(UpdatePostRequest { id, content, title });
     request
       .metadata_mut()
-      .insert("authorization", MetadataValue::try_from(token_value)?);
+      .insert("authorization", MetadataValue::try_from(token)?);
     let response = self.protected.update_post(request).await?;
 
     Ok(response.into_inner())
   }
   async fn delete_post(
     &mut self,
+    token: &str,
     id: i64,
-  ) -> Result<EmptyResponse, Box<dyn Error>> {
-    let token_value = self.token.clone().unwrap_or_default();
+  ) -> Result<(), BlogClientError> {
+    let metadata = MetadataValue::try_from(token).map_err(|e| {
+      BlogClientError::Internal(format!("Failed building MetadataValue: {e:?}"))
+    })?;
     let mut request = Request::new(DeletePostRequest { id });
-    request
-      .metadata_mut()
-      .insert("authorization", MetadataValue::try_from(token_value)?);
-    let response = self.protected.delete_post(request).await?;
+    request.metadata_mut().insert("authorization", metadata);
+    let _ = self.protected.delete_post(request).await?;
 
-    Ok(response.into_inner())
+    Ok(())
   }
 }

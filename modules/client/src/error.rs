@@ -14,4 +14,6 @@ pub enum BlogClientError {
   Unauthorized,
   #[error("Invalid request: {0}")]
   InvalidRequest(String),
+  #[error("Internal: {0}")]
+  Internal(String),
 }
