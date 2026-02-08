@@ -6,6 +6,7 @@ service BlogPublicService {
   rpc Register(CreateUserRequest) returns (AuthResponse);
   rpc Login(AuthRequest) returns (AuthResponse);
   rpc GetPost(GetPostRequest) returns (PostResponse);
+  rpc ListPosts(ListPostsRequest) returns (ListPostResponse);
   rpc StreamPosts(StreamPostsRequest) returns (stream PostResponse);
 }
 service BlogProtectedService {
@@ -50,6 +51,16 @@ message CreatePostRequest {
 message GetPostRequest {
   int64 id = 1;
 }
+message ListPostsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+message ListPostResponse {
+  repeated PostResponse posts = 1;
+  int64 total = 2;
+  int64 limit = 3;
+  int64 offset = 4;
+}
 message StreamPostsRequest {
   int64 limit = 1;
   int64 offset = 2;
@@ -63,10 +74,4 @@ message DeletePostRequest {
   int64 id = 1;
 }
 message EmptyResponse{
-}
-message ListPostResponse {
-  repeated PostResponse posts = 1;
-  int64 total = 2;
-  int64 limit = 3;
-  int64 offset = 4;
 }

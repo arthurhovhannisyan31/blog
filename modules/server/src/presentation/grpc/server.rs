@@ -1,11 +1,13 @@
-use proto_generator::blog::{
-  AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
-  CreateUserRequest, DeletePostRequest, EmptyResponse, GetPostRequest,
-  PostResponse, StreamPostsRequest, UpdatePostRequest,
-  blog_protected_service_server::BlogProtectedService,
-  blog_public_service_server::BlogPublicService,
-};
 use std::time::Duration;
+
+use common::utils::get_next_pagination;
+use proto_generator::blog::{
+  blog_protected_service_server::BlogProtectedService, blog_public_service_server::BlogPublicService, AuthRequest, AuthResponse,
+  AuthenticatedUser, CreatePostRequest, CreateUserRequest, DeletePostRequest,
+  EmptyResponse, GetPostRequest, ListPostResponse, ListPostsRequest,
+  PostResponse, StreamPostsRequest,
+  UpdatePostRequest,
+};
 use tonic::codegen::tokio_stream;
 use tonic::metadata::MetadataMap;
 use tonic::{Code, Request, Response, Status};
@@ -113,6 +115,32 @@ impl BlogPublicService for GrpcBlogPublicServiceImpl {
     let post = self.blog_service.get_post(request.id).await?;
 
     Ok(Response::new(PostResponse::from(post)))
+  }
+
+  async fn list_posts(
+    &self,
+    request: Request<ListPostsRequest>,
+  ) -> Result<Response<ListPostResponse>, Status> {
+    let request = request.into_inner();
+
+    let total = self.blog_service.get_posts_count().await?;
+    let posts: Vec<PostResponse> = self
+      .blog_service
+      .list_posts(request.limit, request.offset)
+      .await?
+      .into_iter()
+      .map(PostResponse::from)
+      .collect();
+
+    let (next_offset, next_limit) =
+      get_next_pagination(total as u64, request.limit as u64);
+
+    Ok(Response::new(ListPostResponse {
+      posts,
+      total,
+      limit: next_limit as i64,
+      offset: next_offset as i64,
+    }))
   }
 
   type StreamPostsStream =
