@@ -2,11 +2,11 @@ use std::time::Duration;
 
 use common::utils::get_next_pagination;
 use proto_generator::blog::{
-  AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
-  CreateUserRequest, DeletePostRequest, EmptyResponse, GetPostRequest,
-  ListPostResponse, ListPostsRequest, PostResponse, StreamPostsRequest,
-  UpdatePostRequest, blog_protected_service_server::BlogProtectedService,
-  blog_public_service_server::BlogPublicService,
+  blog_protected_service_server::BlogProtectedService, blog_public_service_server::BlogPublicService, AuthRequest, AuthResponse,
+  AuthenticatedUser, CreatePostRequest, CreateUserRequest, DeletePostRequest,
+  EmptyResponse, GetPostRequest, ListPostResponse, ListPostsRequest,
+  PostResponse, StreamPostsRequest,
+  UpdatePostRequest,
 };
 use tonic::codegen::tokio_stream;
 use tonic::metadata::MetadataMap;
@@ -226,9 +226,15 @@ impl BlogProtectedService for GrpcBlogProtectedServiceImpl {
     &self,
     request: Request<UpdatePostRequest>,
   ) -> Result<Response<PostResponse>, Status> {
-    let user_id = read_user_id_from_metadata(request.metadata())?;
-    let user = self.auth_service.get(user_id).await?;
+    let metadata = request.metadata().clone();
     let payload = request.into_inner();
+
+    let post = self.blog_service.get_post(payload.id).await?;
+    let user_id = read_user_id_from_metadata(&metadata)?;
+    let user = self.auth_service.get(user_id).await?;
+
+    ensure_owner(&post, &dto::AuthenticatedUser::from(user.clone()))?;
+
     let post = self
       .blog_service
       .update_post(payload.id, payload.title, payload.content, user.id)
