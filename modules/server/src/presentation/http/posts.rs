@@ -5,7 +5,7 @@ use crate::presentation::http::dto::{
   AuthenticatedUser, CreatePostRequest, GetPostsQueryParams, ListPostResponse,
   PostResponse, UpdatePostRequest,
 };
-use actix_web::{HttpResponse, delete, get, post, put, web};
+use actix_web::{delete, get, post, put, web, HttpResponse};
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use common::utils::get_next_pagination;
 use tracing::info;
@@ -38,7 +38,7 @@ pub async fn create_post(
     "Post created: "
   );
 
-  Ok(HttpResponse::Created().json(post))
+  Ok(HttpResponse::Created().json(PostResponse::from(post)))
 }
 
 #[get("/posts/{id}")]
@@ -49,7 +49,7 @@ pub async fn get_post(
   let id = path.into_inner();
   let post = blog_service.get_post(id).await?;
 
-  Ok(HttpResponse::Ok().json(post))
+  Ok(HttpResponse::Ok().json(PostResponse::from(post)))
 }
 
 #[get("/posts")]
@@ -108,7 +108,7 @@ pub async fn update_post(
     "Post updated"
   );
 
-  Ok(HttpResponse::Ok().json(updated_post))
+  Ok(HttpResponse::Ok().json(PostResponse::from(updated_post)))
 }
 
 #[delete("/posts/{id}")]
