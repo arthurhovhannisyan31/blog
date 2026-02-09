@@ -49,7 +49,7 @@ impl UserRepository for PostgresUserRepository {
         .as_database_error()
         .and_then(|db| db.constraint())
         .map(|c| {
-          c.contains(db_constraints::USERS_USERNAME) || c.contains(db_constraints::USERS_USERNAME)
+          c.contains(db_constraints::USERS_USERNAME) || c.contains(db_constraints::USERS_EMAIL)
         })
         == Some(true)
       {

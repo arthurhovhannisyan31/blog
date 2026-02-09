@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, Responder, Scope, get, post, web};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use chrono::Utc;
 use serde_json::json;
 use tracing::info;

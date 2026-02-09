@@ -65,10 +65,10 @@ impl AbstractBlogClient for GrpcBlogClient {
     title: String,
     content: String,
   ) -> Result<PostResponse, BlogClientError> {
+    let metadata = MetadataValue::try_from(token)
+      .map_err(|e| BlogClientError::Internal(e.to_string()))?;
     let mut request = Request::new(CreatePostRequest { content, title });
-    request
-      .metadata_mut()
-      .insert("authorization", MetadataValue::try_from(token)?);
+    request.metadata_mut().insert("authorization", metadata);
     let response = self.protected.create_post(request).await?;
 
     Ok(response.into_inner())
@@ -101,10 +101,10 @@ impl AbstractBlogClient for GrpcBlogClient {
     title: String,
     content: String,
   ) -> Result<PostResponse, BlogClientError> {
+    let metadata = MetadataValue::try_from(token)
+      .map_err(|e| BlogClientError::Internal(e.to_string()))?;
     let mut request = Request::new(UpdatePostRequest { id, content, title });
-    request
-      .metadata_mut()
-      .insert("authorization", MetadataValue::try_from(token)?);
+    request.metadata_mut().insert("authorization", metadata);
     let response = self.protected.update_post(request).await?;
 
     Ok(response.into_inner())

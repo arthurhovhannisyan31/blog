@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::application::error::ApplicationError;
 use crate::data::user_repository::UserRepository;
 use crate::domain::user::User;
-use crate::infrastructure::jwt::{JwtService, hash_password, verify_password};
+use crate::infrastructure::jwt::{hash_password, verify_password, JwtService};
 
 #[derive(Clone)]
 pub struct AuthService<R: UserRepository + 'static> {
@@ -17,10 +17,6 @@ where
 {
   pub fn new(repo: R, jwt_service: Arc<JwtService>) -> Self {
     Self { repo, jwt_service }
-  }
-
-  pub fn keys(&self) -> &JwtService {
-    &self.jwt_service
   }
 
   // TODO Check if it works

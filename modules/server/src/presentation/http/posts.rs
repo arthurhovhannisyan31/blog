@@ -1,5 +1,3 @@
-use std::cmp::min;
-
 use crate::application::{blog_service::BlogService, error::ApplicationError};
 use crate::data::post_repository::PostgresPostRepository;
 use crate::domain::post::Post;
@@ -7,8 +5,8 @@ use crate::presentation::http::dto::{
   AuthenticatedUser, CreatePostRequest, GetPostsQueryParams, ListPostResponse,
   PostResponse, UpdatePostRequest,
 };
-use actix_web::{HttpResponse, delete, get, post, put, web};
-use common::constants::{QUERY_LIMIT, QUERY_LIMIT_STEP, QUERY_OFFSET};
+use actix_web::{delete, get, post, put, web, HttpResponse};
+use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use common::utils::get_next_pagination;
 use tracing::info;
 

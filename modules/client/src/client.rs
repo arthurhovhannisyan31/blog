@@ -51,83 +51,165 @@ impl BlogClient {
 }
 
 impl AbstractBlogClient for BlogClient {
-  fn register(
+  async fn register(
     &mut self,
     username: String,
     email: String,
     password: String,
-  ) -> impl Future<Output = Result<AuthResponse, BlogClientError>> {
+  ) -> Result<AuthResponse, BlogClientError> {
     match self.transport {
       Transport::Grpc(_) => {
-        if let Some(mut client) = self.grpc_client {
-          client.register(username, email, password)
-        } else {
-          Err(BlogClientError::Transport("Missing grpc client".into()))
+        if let Some(client) = &mut self.grpc_client {
+          let response = client.register(username, email, password).await?;
+          self.set_token(response.token.clone());
+
+          return Ok(response);
         }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
       }
-      Transport::Http(_) => {}
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          let response = client.register(username, email, password).await?;
+          self.set_token(response.token.clone());
+
+          return Ok(response);
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
-  fn login(
+  async fn login(
     &mut self,
     username: String,
     password: String,
-  ) -> impl Future<Output = Result<AuthResponse, BlogClientError>> {
+  ) -> Result<AuthResponse, BlogClientError> {
     match self.transport {
-      Transport::Grpc(_) => {}
-      Transport::Http(_) => {}
+      Transport::Grpc(_) => {
+        if let Some(client) = &mut self.grpc_client {
+          let response = client.login(username, password).await?;
+          self.set_token(response.token.clone());
+
+          return Ok(response);
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          let response = client.login(username, password).await?;
+          self.set_token(response.token.clone());
+
+          return Ok(response);
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
-  fn create_post(
+  async fn create_post(
     &mut self,
-    token: &str,
+    _token: &str,
     title: String,
     content: String,
-  ) -> impl Future<Output = Result<PostResponse, BlogClientError>> {
+  ) -> Result<PostResponse, BlogClientError> {
+    let token = &self.get_token();
+
     match self.transport {
-      Transport::Grpc(_) => {}
-      Transport::Http(_) => {}
+      Transport::Grpc(_) => {
+        if let Some(client) = &mut self.grpc_client {
+          return client.create_post(token, title, content).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          return client.create_post(token, title, content).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
-  fn get_post(
+  async fn get_post(
     &mut self,
     id: i64,
-  ) -> impl Future<Output = Result<PostResponse, BlogClientError>> {
+  ) -> Result<PostResponse, BlogClientError> {
     match self.transport {
-      Transport::Grpc(_) => {}
-      Transport::Http(_) => {}
+      Transport::Grpc(_) => {
+        if let Some(client) = &mut self.grpc_client {
+          return client.get_post(id).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          return client.get_post(id).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
-  fn list_posts(
+  async fn list_posts(
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> impl Future<Output = Result<ListPostResponse, BlogClientError>> {
+  ) -> Result<ListPostResponse, BlogClientError> {
     match self.transport {
-      Transport::Grpc(_) => {}
-      Transport::Http(_) => {}
+      Transport::Grpc(_) => {
+        if let Some(client) = &mut self.grpc_client {
+          return client.list_posts(limit, offset).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          return client.list_posts(limit, offset).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
-  fn update_post(
+  async fn update_post(
     &mut self,
-    token: &str,
+    _token: &str,
     id: i64,
     title: String,
     content: String,
-  ) -> impl Future<Output = Result<PostResponse, BlogClientError>> {
+  ) -> Result<PostResponse, BlogClientError> {
+    let token = &self.get_token();
+
     match self.transport {
-      Transport::Grpc(_) => {}
-      Transport::Http(_) => {}
+      Transport::Grpc(_) => {
+        if let Some(client) = &mut self.grpc_client {
+          return client.update_post(token, id, title, content).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          return client.update_post(token, id, title, content).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
-  fn delete_post(
+  async fn delete_post(
     &mut self,
-    token: &str,
+    _token: &str,
     id: i64,
-  ) -> impl Future<Output = Result<(), BlogClientError>> {
+  ) -> Result<(), BlogClientError> {
+    let token = &self.get_token();
+
     match self.transport {
-      Transport::Grpc(_) => {}
-      Transport::Http(_) => {}
+      Transport::Grpc(_) => {
+        if let Some(client) = &mut self.grpc_client {
+          return client.delete_post(token, id).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
+      Transport::Http(_) => {
+        if let Some(client) = &mut self.http_client {
+          return client.delete_post(token, id).await;
+        }
+        Err(BlogClientError::Internal("Missing grpc client".into()))
+      }
     }
   }
 }
