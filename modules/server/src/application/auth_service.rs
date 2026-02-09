@@ -19,10 +19,6 @@ where
     Self { repo, jwt_service }
   }
 
-  pub fn keys(&self) -> &JwtService {
-    &self.jwt_service
-  }
-
   // TODO Check if it works
   // #[instrument(skip(self))]
   pub async fn get(&self, id: i64) -> Result<User, ApplicationError> {

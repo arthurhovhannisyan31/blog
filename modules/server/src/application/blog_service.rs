@@ -44,14 +44,14 @@ where
   }
 
   // #[instrument(skip(self))]
-  pub async fn get_posts(
+  pub async fn list_posts(
     &self,
     limit: i64,
     offset: i64,
   ) -> Result<Vec<Post>, ApplicationError> {
     self
       .repo
-      .get_all(limit, offset)
+      .list(limit, offset)
       .await
       .map_err(ApplicationError::from)
   }

@@ -1,15 +1,14 @@
 use async_trait::async_trait;
-use sqlx::{FromRow, PgPool};
+use sqlx::PgPool;
 use tracing::error;
 
-use crate::domain::error::DomainError;
-use crate::domain::post::Post;
+use crate::domain::{error::DomainError, post::Post};
 
 #[async_trait]
 pub trait PostRepository: Send + Sync {
   async fn create(&self, post: Post) -> Result<Post, DomainError>;
   async fn get(&self, id: i64) -> Result<Option<Post>, DomainError>;
-  async fn get_all(
+  async fn list(
     &self,
     limit: i64,
     offset: i64,
@@ -100,7 +99,7 @@ impl PostRepository for PostgresPostRepository {
 
     Ok(row)
   }
-  async fn get_all(
+  async fn list(
     &self,
     limit: i64,
     offset: i64,
