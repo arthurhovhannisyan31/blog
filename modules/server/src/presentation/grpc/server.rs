@@ -2,11 +2,11 @@ use std::time::Duration;
 
 use common::utils::get_next_pagination;
 use proto_generator::blog::{
-  blog_protected_service_server::BlogProtectedService, blog_public_service_server::BlogPublicService, AuthRequest, AuthResponse,
-  AuthenticatedUser, CreatePostRequest, CreateUserRequest, DeletePostRequest,
-  EmptyResponse, GetPostRequest, ListPostResponse, ListPostsRequest,
-  PostResponse, StreamPostsRequest,
-  UpdatePostRequest,
+  AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
+  CreateUserRequest, DeletePostRequest, EmptyResponse, GetPostRequest,
+  ListPostResponse, ListPostsRequest, PostResponse, StreamPostsRequest,
+  UpdatePostRequest, blog_protected_service_server::BlogProtectedService,
+  blog_public_service_server::BlogPublicService,
 };
 use tonic::codegen::tokio_stream;
 use tonic::metadata::MetadataMap;

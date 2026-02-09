@@ -1,12 +1,11 @@
+use crate::AbstractBlogClient;
+use crate::error::BlogClientError;
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET, http_route, http_scope};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
   DeletePostRequest, ListPostResponse, PostResponse, UpdatePostRequest,
 };
 use reqwest::{Client, header::AUTHORIZATION};
-
-use crate::AbstractBlogClient;
-use crate::error::BlogClientError;
 
 pub struct HttpBlogClient {
   pub client: Client,
@@ -99,7 +98,6 @@ impl AbstractBlogClient for HttpBlogClient {
       .json(&CreatePostRequest { content, title })
       .send()
       .await?;
-
     match resp.error_for_status() {
       Ok(res) => {
         let data = res.json::<PostResponse>().await?;
