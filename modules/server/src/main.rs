@@ -16,6 +16,7 @@ use data::{
 use infrastructure::{
   config::AppConfig,
   database::{create_pool, run_migrations},
+  error::ServerError,
   jwt::JwtService,
   logging::init_logging,
 };
@@ -24,17 +25,13 @@ use presentation::{
 };
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<(), ServerError> {
   init_logging();
 
-  let config = AppConfig::from_env().expect("Failed reading env variables");
-  let pool = create_pool(&config.database_url)
-    .await
-    .expect("Failed to connect to database");
+  let config = AppConfig::from_env()?;
+  let pool = create_pool(&config.database_url).await?;
 
-  run_migrations(&pool)
-    .await
-    .expect("Failed to run migrations");
+  run_migrations(&pool).await?;
 
   let jwt_service = Arc::new(JwtService::new(config.jwt_secret.clone()));
 
