@@ -1,5 +1,8 @@
 use blog_client::AbstractBlogClient;
+use chrono::{DateTime, TimeZone, Utc};
 use clap::Parser;
+use proto_generator::blog::PostResponse;
+use serde_json::json;
 use tracing::info;
 
 mod configs;
@@ -12,6 +15,7 @@ use configs::{Cli, Commands};
 use error::CliError;
 use init_client::init_client;
 use logging::init_logging;
+
 use token::{BLOG_TOKEN_PATH, read_token, save_token};
 
 #[tokio::main]
@@ -52,17 +56,17 @@ async fn main() -> Result<(), CliError> {
     Commands::Create { content, title } => {
       let response = client.create_post("", title, content).await?;
 
-      info!(post = ?response, "Post created: ");
+      info!(post = %beautify_post_response(response), "Post created: ");
     }
     Commands::Get { id } => {
       let response = client.get_post(id as i64).await?;
 
-      info!(post = ?response, "Get post: ");
+      info!(post = %beautify_post_response(response), "Get post: ");
     }
     Commands::Update { id, content, title } => {
       let response = client.update_post("", id as i64, title, content).await?;
 
-      info!(post = ?response, "Post updated: ");
+      info!(post = %beautify_post_response(response), "Post updated: ");
     }
     Commands::Delete { id } => {
       let _ = client.delete_post("", id as i64).await?;
@@ -78,10 +82,32 @@ async fn main() -> Result<(), CliError> {
         "Posts list response"
       );
       for post in response.posts {
-        info!(post = ?post, "Post: \n\n");
+        info!(post = %beautify_post_response(post), "\n\nPost:");
       }
     }
   }
 
   Ok(())
+}
+
+fn beautify_post_response(post: PostResponse) -> String {
+  let updated_at_utc: DateTime<Utc> = Utc
+    .timestamp_opt(post.updated_at, 0)
+    .single()
+    .unwrap_or_default();
+
+  let created_at_utc: DateTime<Utc> = Utc
+    .timestamp_opt(post.created_at, 0)
+    .single()
+    .unwrap_or_default();
+
+  json!({
+    "id": post.id,
+    "content": post.content,
+    "title": post.title,
+    "author_id": post.author_id,
+    "created_at": created_at_utc,
+    "updated_at": updated_at_utc,
+  })
+  .to_string()
 }
