@@ -1,5 +1,5 @@
 [package]
-name = "cli"
+name = "blog-cli"
 description = "Blog cli util"
 version.workspace = true
 edition.workspace = true
@@ -9,7 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 anyhow = "1.0.100"
-blog-client = { path = "../client" }
+blog-client = { path = "../blog-client" }
 chrono = "0.4"
 clap = { version = "4.5", features = ["derive"] }
 dotenvy = "0.15"

@@ -1,11 +1,15 @@
 [package]
-name = "server"
+name = "blog-server"
 description = "Blog http and grpc API server"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+
+[[bin]]
+name = "blgo-server"
+path = "src/main.rs"
 
 [dependencies]
 actix-cors = "0.7"

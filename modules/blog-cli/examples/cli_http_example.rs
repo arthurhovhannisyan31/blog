@@ -1,7 +1,9 @@
-use cli::error::CliError;
-use cli::init_client::init_client;
-use cli::logging::init_logging;
-use cli::token::{BLOG_TOKEN_PATH, read_token};
+use blog_cli::error::CliError;
+use blog_cli::init_client::init_client;
+use blog_cli::logging::init_logging;
+use blog_cli::token::{BLOG_TOKEN_PATH, read_token};
+use tokio::process::Command;
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<(), CliError> {
@@ -10,6 +12,21 @@ async fn main() -> Result<(), CliError> {
   let mut client = init_client(false, None).await?;
   let token = read_token(BLOG_TOKEN_PATH.to_string()).await?;
   client.set_token(token);
+
+  // try to login, if doesn't exist register
+
+  let mut cmd = Command::new("../../target/release/blog-cli");
+  let res = cmd
+    .arg("register")
+    .arg("--username")
+    .arg("ivan")
+    .arg("--email")
+    .arg("ivan@example.com")
+    .arg("--password")
+    .arg("secret123")
+    .output()
+    .await;
+  info!(res = ?res);
 
   // add cases login -> list
 

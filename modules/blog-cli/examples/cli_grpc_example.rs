@@ -1,7 +1,7 @@
-use cli::error::CliError;
-use cli::init_client::init_client;
-use cli::logging::init_logging;
-use cli::token::{BLOG_TOKEN_PATH, read_token};
+use blog_cli::error::CliError;
+use blog_cli::init_client::init_client;
+use blog_cli::logging::init_logging;
+use blog_cli::token::{BLOG_TOKEN_PATH, read_token};
 
 #[tokio::main]
 async fn main() -> Result<(), CliError> {

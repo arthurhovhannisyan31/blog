@@ -65,7 +65,7 @@ async fn main() -> Result<(), CliError> {
       info!(post = ?response, "Post updated: ");
     }
     Commands::Delete { id } => {
-      let response = client.delete_post("", id as i64).await?;
+      let _ = client.delete_post("", id as i64).await?;
 
       info!(id = id, "Post deleted: ");
     }

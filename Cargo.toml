@@ -1,12 +1,12 @@
 [workspace]
 resolver = "3"
 members = [
-    "modules/cli",
-    "modules/client",
+    "modules/blog-cli",
+    "modules/blog-client",
+    "modules/blog-fe",
+    "modules/blog-server",
     "modules/common",
     "modules/proto-generator",
-    "modules/server",
-    "modules/wasm-fe"
 ]
 
 [workspace.package]
