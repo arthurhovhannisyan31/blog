@@ -38,16 +38,6 @@ impl AppConfig {
   }
 }
 
-// TODO Create en example with command builder with arguments
-// blog-cli register --username "ivan" --email "ivan@example.com" --password "secret123"
-// blog-cli login --username "ivan" --password "secret123"
-// blog-cli create --title "Мой первый пост" --content "Содержание"
-// blog-cli create --title "Мой первый пост" --content "Содержание" --grpc (для gRPC)
-// blog-cli get --id 1
-// blog-cli update --id 1 --title "Обновлённый заголовок"
-// blog-cli delete --id 1
-// blog-cli list --limit 20 --offset 0
-
 #[derive(Debug, Parser)]
 #[command(name = "blog-cli", about, version, next_line_help = true)]
 pub struct Cli {
@@ -91,9 +81,9 @@ pub enum Commands {
     #[arg(short, long)]
     id: u64,
     #[arg(short, long, value_parser = NonEmptyStringValueParser::new())]
-    title: String,
+    title: Option<String>,
     #[arg(short, long)]
-    content: String,
+    content: Option<String>,
   },
   Delete {
     #[arg(short, long)]

@@ -8,28 +8,25 @@ mod init_client;
 mod logging;
 mod token;
 
-use crate::token::Token;
 use configs::{Cli, Commands};
 use error::CliError;
 use init_client::init_client;
 use logging::init_logging;
+use token::{BLOG_TOKEN_PATH, read_token, save_token};
 
 #[tokio::main]
 async fn main() -> Result<(), CliError> {
   init_logging();
-
-  let mut token = Token::init().await?;
 
   let Cli {
     command,
     grpc,
     server,
   } = Cli::parse();
-  println!("host {command:?}");
-  println!("grpc_port {grpc:?}");
-  println!("http_port {server:?}");
 
   let mut client = init_client(grpc, server).await?;
+  let token = read_token(BLOG_TOKEN_PATH.to_string()).await?;
+  client.set_token(token);
 
   match command {
     Commands::Register {
@@ -40,16 +37,20 @@ async fn main() -> Result<(), CliError> {
       let response = client.register(username, email, password).await?;
       info!(auth = ?response, "Registered user: ");
 
-      token.set(response.token).await?;
+      let token = format!("Bearer {}", response.token);
+      client.set_token(token.clone());
+      save_token(BLOG_TOKEN_PATH.to_string(), token).await?;
     }
     Commands::Login { email, password } => {
       let response = client.login(email, password).await?;
       info!(auth = ?response, "Login user: ");
 
-      token.set(response.token).await?;
+      let token = format!("Bearer {}", response.token);
+      client.set_token(token.clone());
+      save_token(BLOG_TOKEN_PATH.to_string(), token).await?;
     }
     Commands::Create { content, title } => {
-      let response = client.create_post(token.get(), title, content).await?;
+      let response = client.create_post("", title, content).await?;
 
       info!(post = ?response, "Post created: ");
     }
@@ -59,14 +60,12 @@ async fn main() -> Result<(), CliError> {
       info!(post = ?response, "Get post: ");
     }
     Commands::Update { id, content, title } => {
-      let response = client
-        .update_post(token.get(), id as i64, title, content)
-        .await?;
+      let response = client.update_post("", id as i64, title, content).await?;
 
       info!(post = ?response, "Post updated: ");
     }
     Commands::Delete { id } => {
-      let response = client.delete_post(token.get(), id as i64).await?;
+      let response = client.delete_post("", id as i64).await?;
 
       info!(id = id, "Post deleted: ");
     }

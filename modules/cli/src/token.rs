@@ -1,36 +1,40 @@
+use std::path::PathBuf;
+use tokio::{
+  fs::{File, OpenOptions},
+  io::{AsyncReadExt, AsyncWriteExt},
+};
+
 use crate::error::CliError;
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-const BLOG_TOKEN_PATH: &str = ".blog_token";
+pub const BLOG_TOKEN_PATH: &str = ".blog_token";
 
-pub struct Token {
-  token: String,
+pub async fn read_token(path: String) -> Result<String, CliError> {
+  let path = PathBuf::from(path);
+  let file_exists = path.exists();
+  let mut buffer = String::new();
+
+  if let Ok(mut f) = File::open(BLOG_TOKEN_PATH).await {
+    f.read_to_string(&mut buffer).await?;
+  }
+
+  if file_exists && buffer.is_empty() {
+    return Err(CliError::ValidationError(format!(
+      "Token is missing in file: {BLOG_TOKEN_PATH}"
+    )));
+  }
+
+  Ok(buffer)
 }
 
-impl Token {
-  pub async fn init() -> Result<Token, CliError> {
-    let mut f = File::open(BLOG_TOKEN_PATH).await?;
-    let mut buffer = String::new();
-    f.read_to_string(&mut buffer).await?;
+pub async fn save_token(path: String, token: String) -> Result<(), CliError> {
+  let mut f = OpenOptions::new()
+    .create(true)
+    .read(true)
+    .write(true)
+    .open(path)
+    .await?;
+  let _ = f.write(token.as_bytes()).await?;
+  f.flush().await?;
 
-    if buffer.is_empty() {
-      return Err(CliError::ValidationError(
-        "Token should not be empty".into(),
-      ));
-    }
-
-    Ok(Self { token: buffer })
-  }
-  pub fn get(&self) -> &str {
-    &self.token
-  }
-  pub async fn set(&mut self, token: String) -> Result<(), CliError> {
-    self.token = token.clone();
-
-    let mut f = File::open(BLOG_TOKEN_PATH).await?;
-    let _ = f.write(token.as_bytes()).await?;
-
-    Ok(())
-  }
+  Ok(())
 }

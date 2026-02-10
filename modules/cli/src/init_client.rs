@@ -1,5 +1,6 @@
-use blog_client::{Transport, client::BlogClient};
 use std::net::SocketAddr;
+
+use blog_client::{Transport, client::BlogClient};
 
 use crate::configs::AppConfig;
 use crate::error::CliError;
@@ -13,10 +14,6 @@ pub async fn init_client(
     grpc_port,
     http_port,
   } = AppConfig::from_env()?;
-
-  println!("host {host:?}");
-  println!("grpc_port {grpc_port:?}");
-  println!("http_port {http_port:?}");
 
   let transport: Transport;
   let http_addr = format!("http://{host}:{http_port}/api");
