@@ -1,0 +1,37 @@
+[package]
+name = "blog-client"
+description = ""
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+common.workspace = true
+proto-generator.workspace = true
+reqwest = { version = "0.13", features = ["json", "query"] }
+tokio.workspace = true
+tonic.workspace = true
+tonic-prost = "0.14"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[[example]]
+name = "blog-client-http"
+path = "examples/http_client_example.rs"
+
+[[example]]
+name = "blog-client-grpc"
+path = "examples/grpc_client_example.rs"
+
+[lints]
+workspace = true
+
+[build-dependencies]
+tonic-prost-build = "0.14"
