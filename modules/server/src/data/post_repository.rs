@@ -162,12 +162,10 @@ impl PostRepository for PostgresPostRepository {
       .await
       .map_err(|e| {
         error!("Failed to update posts: {}", e);
-
-        // TODO return 404 if post not found
         error!(
-        constraint = e.as_database_error().and_then(|db| db.constraint()),
-        "DB Constraint: Get *: "
-      );
+          constraint = e.as_database_error().and_then(|db| db.constraint()),
+          "DB Constraint: Get *: "
+        );
 
         DomainError::Internal(format!("database error: {}", e))
       })?;

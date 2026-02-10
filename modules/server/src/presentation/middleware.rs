@@ -1,7 +1,7 @@
-use actix_web::dev::ServiceRequest;
-use actix_web::{Error, HttpMessage, error, web};
-use actix_web_httpauth::extractors::bearer::BearerAuth;
 use std::sync::Arc;
+
+use actix_web::{Error, HttpMessage, dev::ServiceRequest, error, web};
+use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::application::auth_service::AuthService;
 use crate::data::user_repository::PostgresUserRepository;
@@ -31,6 +31,10 @@ pub async fn jwt_validator(
       req,
     ));
   };
+
+  if credentials.token().is_empty() {
+    return Err((error::ErrorUnauthorized("Missing jwt token"), req));
+  }
 
   let user = extract_user_from_token(
     credentials.token(),

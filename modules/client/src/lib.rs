@@ -44,8 +44,8 @@ pub trait AbstractBlogClient: Sized {
     &mut self,
     token: &str,
     id: i64,
-    title: String,
-    content: String,
+    title: Option<String>,
+    content: Option<String>,
   ) -> impl Future<Output = Result<PostResponse, BlogClientError>>;
   fn delete_post(
     &mut self,

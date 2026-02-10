@@ -237,7 +237,12 @@ impl BlogProtectedService for GrpcBlogProtectedServiceImpl {
 
     let post = self
       .blog_service
-      .update_post(payload.id, payload.title, payload.content, user.id)
+      .update_post(
+        payload.id,
+        payload.title.unwrap_or(post.title),
+        payload.content.unwrap_or(post.content),
+        user.id,
+      )
       .await?;
 
     info!(

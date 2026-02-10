@@ -92,12 +92,11 @@ pub async fn update_post(
   ensure_owner(&post, &user)?;
 
   let update_post_data = payload.into_inner();
-  // TODO Ensure 404 returned
   let updated_post = blog_service
     .update_post(
       id,
-      update_post_data.title,
-      update_post_data.content,
+      update_post_data.title.unwrap_or(post.title),
+      update_post_data.content.unwrap_or(post.content),
       user.user_id,
     )
     .await?;

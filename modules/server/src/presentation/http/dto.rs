@@ -42,8 +42,8 @@ pub struct CreatePostRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdatePostRequest {
-  pub title: String,
-  pub content: String,
+  pub title: Option<String>,
+  pub content: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

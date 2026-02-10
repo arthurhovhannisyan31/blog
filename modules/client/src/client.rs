@@ -1,10 +1,9 @@
-use proto_generator::blog::{AuthResponse, ListPostResponse, PostResponse};
-use reqwest::Client;
-
 use crate::error::BlogClientError;
 use crate::grpc_client::GrpcBlogClient;
 use crate::http_client::HttpBlogClient;
 use crate::{AbstractBlogClient, Transport};
+use proto_generator::blog::{AuthResponse, ListPostResponse, PostResponse};
+use reqwest::Client;
 
 pub struct BlogClient {
   transport: Transport,
@@ -42,10 +41,10 @@ impl BlogClient {
       }
     }
   }
-  fn set_token(&mut self, token: String) {
-    self.token = Some(format!("Bearer {}", token));
+  pub fn set_token(&mut self, token: String) {
+    self.token = Some(token);
   }
-  fn get_token(&self) -> String {
+  pub fn get_token(&self) -> String {
     self.token.clone().unwrap_or_default()
   }
 }
@@ -170,8 +169,8 @@ impl AbstractBlogClient for BlogClient {
     &mut self,
     _token: &str,
     id: i64,
-    title: String,
-    content: String,
+    title: Option<String>,
+    content: Option<String>,
   ) -> Result<PostResponse, BlogClientError> {
     let token = &self.get_token();
 

@@ -1,11 +1,12 @@
-use crate::AbstractBlogClient;
-use crate::error::BlogClientError;
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET, http_route, http_scope};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
   DeletePostRequest, ListPostResponse, PostResponse, UpdatePostRequest,
 };
 use reqwest::{Client, header::AUTHORIZATION};
+
+use crate::AbstractBlogClient;
+use crate::error::BlogClientError;
 
 pub struct HttpBlogClient {
   pub client: Client,
@@ -161,8 +162,8 @@ impl AbstractBlogClient for HttpBlogClient {
     &mut self,
     token: &str,
     id: i64,
-    title: String,
-    content: String,
+    title: Option<String>,
+    content: Option<String>,
   ) -> Result<PostResponse, BlogClientError> {
     let url = format!(
       "{}/{}/{}/{id}",

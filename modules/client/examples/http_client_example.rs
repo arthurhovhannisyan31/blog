@@ -52,8 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .update_post(
       &token,
       create_post_response.id,
-      "new_title".into(),
-      "new_content".into(),
+      None,
+      Some("new_content".into()),
     )
     .await?;
   info!(post = ?update_post_response, "Update created post: \n\n");

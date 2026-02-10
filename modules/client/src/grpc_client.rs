@@ -98,8 +98,8 @@ impl AbstractBlogClient for GrpcBlogClient {
     &mut self,
     token: &str,
     id: i64,
-    title: String,
-    content: String,
+    title: Option<String>,
+    content: Option<String>,
   ) -> Result<PostResponse, BlogClientError> {
     let metadata = MetadataValue::try_from(token)
       .map_err(|e| BlogClientError::Internal(e.to_string()))?;
