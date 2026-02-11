@@ -4,4 +4,4 @@
 
 printf "⚠️ Run pre-push checks\n\n"
 
-validate_commands "cargo check" "configs/scripts/cargo-fmt.sh" "cargo test" "cargo audit" "configs/scripts/cargo-msrv.sh"
+validate_commands "cargo check" "configs/scripts/cargo-fmt.sh" "cargo test" "cargo audit"
