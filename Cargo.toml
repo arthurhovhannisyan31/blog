@@ -3,7 +3,6 @@ resolver = "3"
 members = [
     "modules/blog-cli",
     "modules/blog-client",
-    "modules/blog-fe",
     "modules/blog-server",
     "modules/common",
     "modules/proto-generator",
