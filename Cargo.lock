@@ -6744,7 +6744,11 @@ dependencies = [
 name = "wasm-fe"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "dioxus",
+ "reqwest 0.13.2",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

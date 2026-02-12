@@ -1,29 +1,28 @@
 use dioxus::prelude::*;
 
-use crate::configs::route::Route;
+use crate::store::state::AppState;
 
 #[component]
 pub fn Navbar() -> Element {
+  let user_data = consume_context::<AppState>().user;
+  let is_authenticated = user_data().is_some();
+
   rsx! {
     div {
       id: "navbar",
       button {
-        id: "nav-button",
+        id: "my-button",
         onclick: move |_| {
           info!("Home button")
         },
         "Home",
       }
-      Link {
-          to: Route::Home {},
-          "Home"
-      }
-      Link {
-          to: Route::Login,
-          onclick: |_| {
-            //
-          },
-          "Logout"
+      button {
+        id: "my-button",
+        onclick: move |_| {
+          info!("Home button")
+        },
+        if is_authenticated {"Logout"} else {"Login"}
       }
     }
   }

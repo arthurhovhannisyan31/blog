@@ -22,6 +22,7 @@ anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 common = { path = "./modules/common" }
 proto-generator = { path = "./modules/proto-generator" }
+reqwest = { version = "0.13", features = ["json", "query"] }
 signal-hook = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

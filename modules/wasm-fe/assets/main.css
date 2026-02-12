@@ -19,12 +19,11 @@ body {
 #layout {
     display: flex;
     flex-direction: row;
-    height: calc(100% - 32px);
     gap: 16px;
-    padding: 16px;
+    height: 100%;
 }
 
-#layout-content {
+#container {
     display: flex;
     overflow: hidden;
     height: 100%;
@@ -42,6 +41,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 16px;
 }
 
 #navbar a {
@@ -83,7 +83,7 @@ body {
     cursor: pointer;
 }
 
-#nav-button {
+#my-button {
     background: none;
     font-size: 16px;
     color: white;
@@ -104,6 +104,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    flex: 1;
+    padding: 16px;
 }
 
 #post-card {
@@ -111,7 +113,18 @@ body {
     flex-direction: column;
     border: white 1px solid;
     padding: 10px;
-    gap: 12px;
+}
+
+#post-card-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+#post-card-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
 }
 
 #post-card-title {
@@ -137,4 +150,21 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 16px;
+}
+
+#home {
+    display: flex;
+    height: 100%;
+    flex: 1;
+}
+
+#create-post {
+    position: absolute;
+    bottom: 20px;
+    right: 40px;
+    font-size: 24px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
 }
