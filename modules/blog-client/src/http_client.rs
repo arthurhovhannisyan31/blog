@@ -1,7 +1,7 @@
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET, http_route, http_scope};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
-  DeletePostRequest, ListPostResponse, PostResponse, UpdatePostRequest,
+  DeletePostRequest, PostResponse, PostsListResponse, UpdatePostRequest,
 };
 use reqwest::{Client, header::AUTHORIZATION};
 
@@ -133,7 +133,7 @@ impl AbstractBlogClient for HttpBlogClient {
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> Result<ListPostResponse, BlogClientError> {
+  ) -> Result<PostsListResponse, BlogClientError> {
     let limit = limit.unwrap_or(QUERY_LIMIT);
     let offset = offset.unwrap_or(QUERY_OFFSET);
     let url = format!(
@@ -151,7 +151,7 @@ impl AbstractBlogClient for HttpBlogClient {
 
     match resp.error_for_status() {
       Ok(res) => {
-        let data = res.json::<ListPostResponse>().await?;
+        let data = res.json::<PostsListResponse>().await?;
 
         Ok(data)
       }

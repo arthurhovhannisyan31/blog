@@ -3,7 +3,7 @@ pub mod error;
 pub mod grpc_client;
 pub mod http_client;
 
-use proto_generator::blog::{AuthResponse, ListPostResponse, PostResponse};
+use proto_generator::blog::{AuthResponse, PostResponse, PostsListResponse};
 
 use crate::error::BlogClientError;
 
@@ -39,7 +39,7 @@ pub trait AbstractBlogClient: Sized {
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> impl Future<Output = Result<ListPostResponse, BlogClientError>>;
+  ) -> impl Future<Output = Result<PostsListResponse, BlogClientError>>;
   fn update_post(
     &mut self,
     token: &str,

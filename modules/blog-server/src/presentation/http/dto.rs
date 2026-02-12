@@ -63,7 +63,7 @@ pub struct PostResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ListPostResponse {
+pub struct PostsListResponse {
   pub posts: Vec<PostResponse>,
   pub total: u64,
   pub limit: u64,
