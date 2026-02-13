@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-// TODO Try to reuse proto-generator types
-
 #[derive(Debug, Deserialize)]
 pub struct PostResponse {
   pub id: i64,
