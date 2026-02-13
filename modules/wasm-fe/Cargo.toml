@@ -13,6 +13,9 @@ serde.workspace = true
 serde_json.workspace = true
 
 
+[build-dependencies]
+dotenvy = "0.15"
+
 [features]
 default = ["web"]
 web = ["dioxus/web"]
