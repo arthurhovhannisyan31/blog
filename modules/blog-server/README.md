@@ -13,6 +13,8 @@
 
 ## Usage
 
+Requires existing blog_db postgres database.
+
 ## Development
 
 Run `cargo sqlx prepare` to generate sql schema based types. (Provide better description)

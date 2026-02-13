@@ -2,12 +2,11 @@ use dioxus::prelude::Signal;
 
 #[derive(Clone, Debug)]
 pub struct AppState {
-  pub user: Signal<Option<UserData>>,
+  pub auth: Signal<Option<UserData>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct UserData {
-  pub name: String,
-  pub id: i64,
   pub token: String,
+  pub user_id: i64,
 }

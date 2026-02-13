@@ -15,8 +15,8 @@ fn main() {
 
 #[component]
 fn App() -> Element {
-  let user = use_signal(|| None);
-  use_context_provider(|| AppState { user });
+  let auth = use_signal(|| None);
+  use_context_provider(|| AppState { auth });
 
   rsx! {
       document::Link { rel: "icon", href: assets::FAVICON }

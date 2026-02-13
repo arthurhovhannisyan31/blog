@@ -1,11 +1,12 @@
-use dioxus::prelude::*;
-
+use crate::configs::route::Route;
 use crate::store::state::AppState;
+use dioxus::prelude::*;
 
 #[component]
 pub fn Navbar() -> Element {
-  let user_data = consume_context::<AppState>().user;
-  let is_authenticated = user_data().is_some();
+  let navigator = use_navigator();
+  let mut auth_data = consume_context::<AppState>().auth;
+  let is_authenticated = auth_data().is_some();
 
   rsx! {
     div {
@@ -13,14 +14,17 @@ pub fn Navbar() -> Element {
       button {
         id: "my-button",
         onclick: move |_| {
-          info!("Home button")
+          navigator.push(Route::Home {});
         },
         "Home",
       }
       button {
         id: "my-button",
         onclick: move |_| {
-          info!("Home button")
+          if is_authenticated {
+            auth_data.set(None);
+          }
+          navigator.push(Route::Login{});
         },
         if is_authenticated {"Logout"} else {"Login"}
       }

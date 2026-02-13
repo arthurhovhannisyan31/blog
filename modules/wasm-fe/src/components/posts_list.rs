@@ -1,25 +1,32 @@
-use crate::components::post_card::PostCard;
-use crate::store::model::PostsListResponse;
-use crate::store::state::AppState;
-use dioxus::html::completions::CompleteWithBraces::title;
 use dioxus::prelude::*;
 use reqwest::Client;
 
+use crate::components::post_card::PostCard;
+use crate::store::model::PostsListResponse;
+use crate::store::state::AppState;
+
 #[component]
 pub fn PostsList() -> Element {
-  let user_data = consume_context::<AppState>().user;
-  let auth = user_data().and_then(|data| Some(data.id)) == Some(0);
+  let auth_data = consume_context::<AppState>().auth;
 
-  let data = use_resource(move || get_posts());
+  // TODO move value to context to mutate
+  let posts_resource = use_resource(move || get_posts());
 
-  let post_cards: Element = match &*data.read() {
+  let post_cards: Element = match &*posts_resource.read() {
     Some(Ok(post_list)) => {
+      for post in post_list.posts.iter() {
+        let key = format!("{} {}", post.title.clone(), post.content.clone());
+        info!(key = key);
+      }
+
       rsx! {
         for post in post_list.posts.iter() {
           PostCard {
-            is_owner: user_data().and_then(|data| Some(data.id)) == Some(post.author_id.clone()),
+            id: post.id.clone(),
+            is_owner: auth_data().and_then(|data| Some(data.user_id)) == Some(post.author_id.clone()),
             title: post.title.clone(),
             content: post.content.clone(),
+            refetch: posts_resource,
           }
         }
       }
@@ -41,7 +48,7 @@ async fn get_posts() -> anyhow::Result<PostsListResponse> {
     .user_agent("User-Agent: wasm-fe")
     .build()?;
   let response = client
-    .get("http://localhost:8080/api/v0/posts")
+    .get("http://localhost:8080/api/v0/posts?limit=50&offset=0")
     .send()
     .await?;
   let posts_list = response.json::<PostsListResponse>().await?;

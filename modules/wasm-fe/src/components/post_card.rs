@@ -1,7 +1,29 @@
 use dioxus::prelude::*;
+use reqwest::header::AUTHORIZATION;
+use reqwest::Client;
+
+use crate::configs::route::Route;
+use crate::store::model::PostsListResponse;
+use crate::store::state::AppState;
 
 #[component]
-pub fn PostCard(is_owner: bool, title: String, content: String) -> Element {
+pub fn PostCard(
+  id: i64,
+  is_owner: bool,
+  title: String,
+  content: String,
+  refetch: Resource<anyhow::Result<PostsListResponse>>,
+) -> Element {
+  let navigator = use_navigator();
+  let auth_data = consume_context::<AppState>().auth;
+
+  let handle_delete = move |_| async move {
+    let _ = delete_post(auth_data().unwrap_or_default().token, id)
+      .await
+      .expect("Failed to delete post");
+    refetch.restart();
+  };
+
   rsx! {
     div {
       id: "post-card",
@@ -22,19 +44,30 @@ pub fn PostCard(is_owner: bool, title: String, content: String) -> Element {
           button {
             id: "my-button",
             onclick: move |_| {
-              info!("Home button")
+              navigator.push(Route::EditPost {id});
             },
             "Edit",
           }
           button {
             id: "my-button",
-            onclick: move |_| {
-              info!("Home button")
-            },
+            onclick: handle_delete,
             "Delete",
           }
         }
       }
     }
   }
+}
+
+async fn delete_post(token: String, id: i64) -> anyhow::Result<()> {
+  let client = Client::builder()
+    .user_agent("User-Agent: wasm-fe")
+    .build()?;
+  let _ = client
+    .delete(format!("http://localhost:8080/api/v1/posts/{id}"))
+    .header(AUTHORIZATION, token)
+    .send()
+    .await?;
+
+  Ok(())
 }
