@@ -21,7 +21,7 @@ fn generate_env_constants() {
   let code = format!(
     r#"pub const PORT: &str = {:?};
 pub const HOST: &str = {:?};
-  "#,
+"#,
     port, host
   );
 

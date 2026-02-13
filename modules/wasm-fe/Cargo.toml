@@ -1,8 +1,12 @@
 [package]
 name = "wasm-fe"
-version = "0.1.0"
-authors = ["Arthur Hovhannisyan <arthurhovhannisyan31@gmail.com>"]
-edition = "2021"
+description = ""
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 anyhow.workspace = true

@@ -1,6 +1,6 @@
 use common::constants::{http_route, http_scope};
-use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
+use reqwest::header::AUTHORIZATION;
 
 use crate::infrastructure::model::{
   AuthRequest, AuthResponse, CreateUserRequest, PostResponse,

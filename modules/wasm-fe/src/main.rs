@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use dioxus_sdk_storage::{use_synced_storage, LocalStorage};
+use dioxus_sdk_storage::{LocalStorage, use_synced_storage};
 
 mod components;
 mod configs;
