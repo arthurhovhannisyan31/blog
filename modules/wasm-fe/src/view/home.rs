@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::components::posts_list::PostsList;
 use crate::configs::route::Route;
-use crate::store::state::AppState;
+use crate::infrastructure::state::AppState;
 
 #[component]
 pub fn Home() -> Element {

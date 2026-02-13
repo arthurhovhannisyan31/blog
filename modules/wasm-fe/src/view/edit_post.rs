@@ -3,8 +3,8 @@ use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
 
 use crate::configs::route::Route;
-use crate::store::model::{PostResponse, UpdatePostRequest};
-use crate::store::state::AppState;
+use crate::infrastructure::model::{PostResponse, UpdatePostRequest};
+use crate::infrastructure::state::AppState;
 
 #[component]
 pub fn EditPost(id: i64) -> Element {

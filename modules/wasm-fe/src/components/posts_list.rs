@@ -2,8 +2,8 @@ use dioxus::prelude::*;
 use reqwest::Client;
 
 use crate::components::post_card::PostCard;
-use crate::store::model::PostsListResponse;
-use crate::store::state::AppState;
+use crate::infrastructure::model::PostsListResponse;
+use crate::infrastructure::state::AppState;
 
 #[component]
 pub fn PostsList() -> Element {
@@ -16,7 +16,6 @@ pub fn PostsList() -> Element {
     Some(Ok(post_list)) => {
       for post in post_list.posts.iter() {
         let key = format!("{} {}", post.title.clone(), post.content.clone());
-        info!(key = key);
       }
 
       rsx! {

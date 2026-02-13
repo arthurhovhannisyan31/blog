@@ -7,10 +7,11 @@ edition = "2021"
 [dependencies]
 anyhow.workspace = true
 dioxus = { version = "0.7.1", features = ["router"] }
-#proto-generator.workspace = true
+dioxus-sdk-storage = "0.7.0"
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+
 
 [features]
 default = ["web"]

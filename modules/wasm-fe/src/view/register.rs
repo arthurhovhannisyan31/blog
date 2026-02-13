@@ -1,15 +1,14 @@
+use crate::configs::route::Route;
+use crate::infrastructure::model::{AuthResponse, CreateUserRequest};
+use crate::infrastructure::state::{AppState, UserData};
 use dioxus::prelude::*;
 use reqwest::Client;
-
-use crate::configs::route::Route;
-use crate::store::model::{AuthResponse, CreateUserRequest};
-use crate::store::state::{AppState, UserData};
+use serde_json::json;
 
 #[component]
 pub fn Register() -> Element {
   let navigator = use_navigator();
-  let mut auth_data = consume_context::<AppState>().auth;
-
+  let mut context = consume_context::<AppState>();
   let mut email = use_signal(|| "".to_string());
   let mut username = use_signal(|| "".to_string());
   let mut password = use_signal(|| "".to_string());
@@ -32,13 +31,14 @@ pub fn Register() -> Element {
     .await
     .unwrap();
 
-    auth_data.set(Some(UserData {
+    let user_data = UserData {
       token: format!("Bearer {}", auth.token),
       user_id: auth.user.user_id,
-    }));
+    };
+
+    context.auth.set(Some(user_data.clone()));
+    context.storage.set(json!(user_data).to_string());
     navigator.push(Route::Home {});
-    // TODO Store token to local storage
-    // Restore token from local storage
   };
 
   rsx! {

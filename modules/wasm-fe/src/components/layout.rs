@@ -1,7 +1,6 @@
-use dioxus::prelude::*;
-
 use crate::components::nav::Navbar;
 use crate::configs::route::Route;
+use dioxus::prelude::*;
 
 #[component]
 pub fn Layout() -> Element {

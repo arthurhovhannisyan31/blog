@@ -3,8 +3,8 @@ use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
 
 use crate::configs::route::Route;
-use crate::store::model::PostsListResponse;
-use crate::store::state::AppState;
+use crate::infrastructure::model::PostsListResponse;
+use crate::infrastructure::state::AppState;
 
 #[component]
 pub fn PostCard(

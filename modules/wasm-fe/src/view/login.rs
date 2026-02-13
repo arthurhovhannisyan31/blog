@@ -1,21 +1,19 @@
+use crate::configs::route::Route;
+use crate::infrastructure::model::{AuthRequest, AuthResponse};
+use crate::infrastructure::state::{AppState, UserData};
 use dioxus::prelude::*;
 use reqwest::Client;
-
-use crate::configs::route::Route;
-use crate::store::model::{AuthRequest, AuthResponse};
-use crate::store::state::{AppState, UserData};
+use serde_json::json;
 
 #[component]
 pub fn Login() -> Element {
   let navigator = use_navigator();
-  let mut auth_data = consume_context::<AppState>().auth;
-
+  let mut context = consume_context::<AppState>();
   let mut email = use_signal(|| "".to_string());
   let mut password = use_signal(|| "".to_string());
   let mut error = use_signal(|| false);
 
-  let handle_register = move |_| async move {
-    //
+  let handle_login = move |_| async move {
     if email.read().is_empty() || password.read().is_empty() {
       error.set(true);
       return;
@@ -25,13 +23,14 @@ pub fn Login() -> Element {
       .await
       .unwrap();
 
-    auth_data.set(Some(UserData {
+    let user_data = UserData {
       token: format!("Bearer {}", auth.token),
       user_id: auth.user.user_id,
-    }));
+    };
+
+    context.auth.set(Some(user_data.clone()));
+    context.storage.set(json!(user_data).to_string());
     navigator.push(Route::Home {});
-    // TODO Store token to local storage
-    // Restore token from local storage
   };
 
   rsx! {
@@ -70,7 +69,7 @@ pub fn Login() -> Element {
         }
         button {
           id: "register-button",
-          onclick: handle_register,
+          onclick: handle_login,
           "Login",
         }
         button {
