@@ -904,10 +904,6 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
-dependencies = [
- "proto-generator",
- "serde",
-]
 
 [[package]]
 name = "concurrent-queue"
@@ -6798,8 +6794,10 @@ name = "wasm-fe"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "common",
  "dioxus",
  "dioxus-sdk-storage",
+ "dotenvy",
  "reqwest 0.13.2",
  "serde",
  "serde_json",

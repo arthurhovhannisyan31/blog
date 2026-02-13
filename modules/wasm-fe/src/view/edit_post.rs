@@ -1,30 +1,33 @@
 use dioxus::prelude::*;
-use reqwest::header::AUTHORIZATION;
-use reqwest::Client;
 
 use crate::configs::route::Route;
-use crate::infrastructure::model::{PostResponse, UpdatePostRequest};
 use crate::infrastructure::state::AppState;
 
 #[component]
 pub fn EditPost(id: i64) -> Element {
   let navigator = use_navigator();
-  let auth_data = consume_context::<AppState>().auth;
+  let AppState {
+    auth,
+    client,
+    storage: _,
+  } = consume_context::<AppState>();
   let mut title = use_signal(|| "".to_string());
   let mut content = use_signal(|| "".to_string());
-  let mut post_data = use_resource(move || get_post(id));
+  let mut post_data =
+    use_resource(move || async move { client().get_post(id).await });
   let mut extra_content: Signal<Result<VNode, RenderError>> =
     use_signal(|| rsx! {});
 
   let handle_update = move |_| async move {
-    let _ = update_post(
-      auth_data().unwrap_or_default().token,
-      id,
-      title().to_string(),
-      content().to_string(),
-    )
-    .await
-    .unwrap();
+    let _ = client()
+      .update_post(
+        auth().unwrap_or_default().token,
+        id,
+        title().to_string(),
+        content().to_string(),
+      )
+      .await
+      .unwrap();
 
     post_data.restart();
     navigator.push(Route::Home {});
@@ -96,40 +99,4 @@ pub fn EditPost(id: i64) -> Element {
       }
     }
   }
-}
-
-async fn get_post(id: i64) -> anyhow::Result<PostResponse> {
-  let client = Client::builder()
-    .user_agent("User-Agent: wasm-fe")
-    .build()?;
-  let response = client
-    .get(format!("http://localhost:8080/api/v0/posts/{id}"))
-    .send()
-    .await?;
-  let post = response.json::<PostResponse>().await?;
-
-  Ok(post)
-}
-
-async fn update_post(
-  token: String,
-  id: i64,
-  title: String,
-  content: String,
-) -> anyhow::Result<PostResponse> {
-  let client = Client::builder()
-    .user_agent("User-Agent: wasm-fe")
-    .build()?;
-  let response = client
-    .put(format!("http://localhost:8080/api/v1/posts/{id}"))
-    .header(AUTHORIZATION, token)
-    .json(&UpdatePostRequest {
-      title: Some(title),
-      content: Some(content),
-    })
-    .send()
-    .await?;
-  let post = response.json::<PostResponse>().await?;
-
-  Ok(post)
 }

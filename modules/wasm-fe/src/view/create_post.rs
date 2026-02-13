@@ -1,26 +1,28 @@
 use dioxus::prelude::*;
-use reqwest::header::AUTHORIZATION;
-use reqwest::Client;
 
 use crate::configs::route::Route;
-use crate::infrastructure::model::{PostResponse, UpdatePostRequest};
 use crate::infrastructure::state::AppState;
 
 #[component]
 pub fn CreatePost() -> Element {
   let navigator = use_navigator();
-  let auth_data = consume_context::<AppState>().auth;
+  let AppState {
+    auth,
+    client,
+    storage: _,
+  } = consume_context::<AppState>();
   let mut title = use_signal(|| "".to_string());
   let mut content = use_signal(|| "".to_string());
 
   let handle_update = move |_| async move {
-    let _ = update_post(
-      auth_data().unwrap_or_default().token,
-      title().to_string(),
-      content().to_string(),
-    )
-    .await
-    .expect("Failed to update post");
+    let _ = client()
+      .create_post(
+        auth().unwrap_or_default().token,
+        title().to_string(),
+        content().to_string(),
+      )
+      .await
+      .expect("Failed to update post");
 
     navigator.push(Route::Home {});
   };
@@ -63,26 +65,4 @@ pub fn CreatePost() -> Element {
       }
     }
   }
-}
-
-async fn update_post(
-  token: String,
-  title: String,
-  content: String,
-) -> anyhow::Result<PostResponse> {
-  let client = Client::builder()
-    .user_agent("User-Agent: wasm-fe")
-    .build()?;
-  let response = client
-    .post("http://localhost:8080/api/v1/posts")
-    .header(AUTHORIZATION, token)
-    .json(&UpdatePostRequest {
-      title: Some(title),
-      content: Some(content),
-    })
-    .send()
-    .await?;
-  let post = response.json::<PostResponse>().await?;
-
-  Ok(post)
 }

@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 anyhow.workspace = true
+common.workspace = true
 dioxus = { version = "0.7.1", features = ["router"] }
 dioxus-sdk-storage = "0.7.0"
 reqwest.workspace = true

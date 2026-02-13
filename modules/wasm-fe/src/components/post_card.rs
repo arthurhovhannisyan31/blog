@@ -1,6 +1,4 @@
 use dioxus::prelude::*;
-use reqwest::header::AUTHORIZATION;
-use reqwest::Client;
 
 use crate::configs::route::Route;
 use crate::infrastructure::model::PostsListResponse;
@@ -15,10 +13,15 @@ pub fn PostCard(
   refetch: Resource<anyhow::Result<PostsListResponse>>,
 ) -> Element {
   let navigator = use_navigator();
-  let auth_data = consume_context::<AppState>().auth;
+  let AppState {
+    auth,
+    client,
+    storage: _,
+  } = consume_context::<AppState>();
 
   let handle_delete = move |_| async move {
-    let _ = delete_post(auth_data().unwrap_or_default().token, id)
+    let _ = client()
+      .delete_post(auth().unwrap_or_default().token, id)
       .await
       .expect("Failed to delete post");
     refetch.restart();
@@ -57,17 +60,4 @@ pub fn PostCard(
       }
     }
   }
-}
-
-async fn delete_post(token: String, id: i64) -> anyhow::Result<()> {
-  let client = Client::builder()
-    .user_agent("User-Agent: wasm-fe")
-    .build()?;
-  let _ = client
-    .delete(format!("http://localhost:8080/api/v1/posts/{id}"))
-    .header(AUTHORIZATION, token)
-    .send()
-    .await?;
-
-  Ok(())
 }
