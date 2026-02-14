@@ -1,5 +1,5 @@
 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;" align="center">
-    <h1><code>blog-server</code></h1>
+    <h1><code>common</code></h1>
     <h4>Built with <a href="https://rust-lang.org/">🦀</a></h4>
 </div>
 
@@ -9,34 +9,22 @@
 
 ## Overview
 
-This is the blog server which implements `http` and `gRPC` protocols.
-Both services, `http` and `gRPC` support authentication middleware.
-Server implements basic authentication user-flow and `CRUD` API for blog posts.
-
-## Description
-
-Server uses the [postgres](https://www.postgresql.org/) as storage and runs [migrations](./migrations) on start.
-
-Authentication Bearer jwt
-Auth service
-Jwt service
-Blog service.
-Migrations
-Grpc service provides reflection-api.
-Hashes password before save to db
-
-cors
+This is common crate which includes modules reused in workspace crates.
 
 ## Usage
 
-Db type
-Db name
-connection string
-variables
+Add the `common` to your crate dependencies and use required modules.
 
-How
+```
+// Cargo.toml
 
-Requires existing blog_db postgres database.
+common = { path = "./modules/common" }
+```
+
+```rust
+use common::constants::{http_scope, QUERY_LIMIT, QUERY_OFFSET};
+use common::utils::get_next_pagination;
+```
 
 ## Stack
 
