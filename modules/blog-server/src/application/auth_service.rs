@@ -19,8 +19,6 @@ where
     Self { repo, jwt_service }
   }
 
-  // TODO Check if it works
-  // #[instrument(skip(self))]
   pub async fn get(&self, id: i64) -> Result<User, ApplicationError> {
     self
       .repo
@@ -29,7 +27,6 @@ where
       .ok_or_else(|| ApplicationError::NotFound(format!("user {}", id)))
   }
 
-  // #[instrument(skip(self))]
   pub async fn get_by_email(
     &self,
     email: &str,
@@ -41,7 +38,6 @@ where
       .ok_or_else(|| ApplicationError::NotFound(format!("user {}", email)))
   }
 
-  // #[instrument(skip(self))]
   pub async fn register(
     &self,
     email: String,
@@ -55,7 +51,6 @@ where
     self.repo.create(user).await.map_err(ApplicationError::from)
   }
 
-  // #[instrument(skip(self))]
   pub async fn login(
     &self,
     email: &str,
