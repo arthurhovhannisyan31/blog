@@ -3,8 +3,8 @@ use std::error::Error;
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
-  DeletePostRequest, GetPostRequest, ListPostResponse, ListPostsRequest,
-  PostResponse, UpdatePostRequest,
+  DeletePostRequest, GetPostRequest, ListPostsRequest, PostResponse,
+  PostsListResponse, UpdatePostRequest,
   blog_protected_service_client::BlogProtectedServiceClient,
   blog_public_service_client::BlogPublicServiceClient,
 };
@@ -85,7 +85,7 @@ impl AbstractBlogClient for GrpcBlogClient {
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> Result<ListPostResponse, BlogClientError> {
+  ) -> Result<PostsListResponse, BlogClientError> {
     let request = Request::new(ListPostsRequest {
       limit: limit.unwrap_or(QUERY_LIMIT) as i64,
       offset: offset.unwrap_or(QUERY_OFFSET) as i64,

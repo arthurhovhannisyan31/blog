@@ -2,7 +2,7 @@ use crate::error::BlogClientError;
 use crate::grpc_client::GrpcBlogClient;
 use crate::http_client::HttpBlogClient;
 use crate::{AbstractBlogClient, Transport};
-use proto_generator::blog::{AuthResponse, ListPostResponse, PostResponse};
+use proto_generator::blog::{AuthResponse, PostResponse, PostsListResponse};
 use reqwest::Client;
 
 pub struct BlogClient {
@@ -149,7 +149,7 @@ impl AbstractBlogClient for BlogClient {
     &mut self,
     limit: Option<u64>,
     offset: Option<u64>,
-  ) -> Result<ListPostResponse, BlogClientError> {
+  ) -> Result<PostsListResponse, BlogClientError> {
     match self.transport {
       Transport::Grpc(_) => {
         if let Some(client) = &mut self.grpc_client {

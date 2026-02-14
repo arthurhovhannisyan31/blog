@@ -15,8 +15,6 @@ where
     Self { repo }
   }
 
-  // TODO Check if it works
-  // #[instrument(skip(self))]
   pub async fn create_post(
     &self,
     title: String,
@@ -29,7 +27,6 @@ where
     self.repo.create(post).await.map_err(ApplicationError::from)
   }
 
-  // #[instrument(skip(self))]
   pub async fn get_post(&self, id: i64) -> Result<Post, ApplicationError> {
     match self.repo.get(id).await.map_err(ApplicationError::from)? {
       Some(post) => Ok(post),
@@ -43,7 +40,6 @@ where
     Ok(count)
   }
 
-  // #[instrument(skip(self))]
   pub async fn list_posts(
     &self,
     limit: i64,
@@ -56,7 +52,6 @@ where
       .map_err(ApplicationError::from)
   }
 
-  // #[instrument(skip(self))]
   pub async fn update_post(
     &self,
     id: i64,
@@ -74,7 +69,6 @@ where
       .map_err(ApplicationError::from)
   }
 
-  // #[instrument(skip(self))]
   pub async fn delete_post(&self, id: i64) -> Result<(), ApplicationError> {
     self.repo.delete(id).await.map_err(ApplicationError::from)
   }

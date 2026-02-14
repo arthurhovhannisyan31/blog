@@ -6,7 +6,7 @@ service BlogPublicService {
   rpc Register(CreateUserRequest) returns (AuthResponse);
   rpc Login(AuthRequest) returns (AuthResponse);
   rpc GetPost(GetPostRequest) returns (PostResponse);
-  rpc ListPosts(ListPostsRequest) returns (ListPostResponse);
+  rpc ListPosts(ListPostsRequest) returns (PostsListResponse);
   rpc StreamPosts(StreamPostsRequest) returns (stream PostResponse);
 }
 service BlogProtectedService {
@@ -55,7 +55,7 @@ message ListPostsRequest {
   int64 limit = 1;
   int64 offset = 2;
 }
-message ListPostResponse {
+message PostsListResponse {
   repeated PostResponse posts = 1;
   int64 total = 2;
   int64 limit = 3;

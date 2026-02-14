@@ -4,7 +4,7 @@ use common::utils::get_next_pagination;
 use proto_generator::blog::{
   AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
   CreateUserRequest, DeletePostRequest, EmptyResponse, GetPostRequest,
-  ListPostResponse, ListPostsRequest, PostResponse, StreamPostsRequest,
+  ListPostsRequest, PostResponse, PostsListResponse, StreamPostsRequest,
   UpdatePostRequest, blog_protected_service_server::BlogProtectedService,
   blog_public_service_server::BlogPublicService,
 };
@@ -120,7 +120,7 @@ impl BlogPublicService for GrpcBlogPublicServiceImpl {
   async fn list_posts(
     &self,
     request: Request<ListPostsRequest>,
-  ) -> Result<Response<ListPostResponse>, Status> {
+  ) -> Result<Response<PostsListResponse>, Status> {
     let request = request.into_inner();
 
     let total = self.blog_service.get_posts_count().await?;
@@ -135,7 +135,7 @@ impl BlogPublicService for GrpcBlogPublicServiceImpl {
     let (next_offset, next_limit) =
       get_next_pagination(total as u64, request.limit as u64);
 
-    Ok(Response::new(ListPostResponse {
+    Ok(Response::new(PostsListResponse {
       posts,
       total,
       limit: next_limit as i64,

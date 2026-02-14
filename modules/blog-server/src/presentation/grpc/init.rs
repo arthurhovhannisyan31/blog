@@ -52,7 +52,7 @@ pub fn init_grpc_server(
   let grpc_addr_str = format!("{}:{}", config.host.as_str(), config.grpc_port);
   let grpc_addr: SocketAddr = grpc_addr_str
     .parse()
-    .expect("Failed parsing grpc socket address");
+    .expect("Failed parsing gRPC socket address");
 
   let grpc_server = Server::builder()
     .add_service(grpc_reflection_service)
