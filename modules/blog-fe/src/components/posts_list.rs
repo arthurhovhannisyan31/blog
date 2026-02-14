@@ -15,10 +15,6 @@ pub fn PostsList() -> Element {
 
   let post_cards: Element = match &*posts_resource.read() {
     Some(Ok(post_list)) => {
-      for post in post_list.posts.iter() {
-        let key = format!("{} {}", post.title.clone(), post.content.clone());
-      }
-
       rsx! {
         for post in post_list.posts.iter() {
           PostCard {
@@ -26,7 +22,7 @@ pub fn PostsList() -> Element {
             is_owner: auth().and_then(|data| Some(data.user_id)) == Some(post.author_id.clone()),
             title: post.title.clone(),
             content: post.content.clone(),
-            refetch: posts_resource,
+            resource: posts_resource,
           }
         }
       }

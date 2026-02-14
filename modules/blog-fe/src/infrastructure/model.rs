@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PostResponse {
   pub id: i64,
@@ -10,6 +11,7 @@ pub struct PostResponse {
   pub updated_at: i64,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PostsListResponse {
   pub posts: Vec<PostResponse>,
@@ -25,6 +27,7 @@ pub struct CreateUserRequest {
   pub password: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub struct AuthenticatedUser {
   pub email: String,

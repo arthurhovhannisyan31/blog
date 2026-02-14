@@ -1,8 +1,8 @@
-use dioxus::prelude::*;
-
+use crate::configs::error::AppError;
 use crate::configs::route::Route;
 use crate::infrastructure::model::PostsListResponse;
 use crate::infrastructure::state::AppState;
+use dioxus::prelude::*;
 
 #[component]
 pub fn PostCard(
@@ -10,7 +10,7 @@ pub fn PostCard(
   is_owner: bool,
   title: String,
   content: String,
-  refetch: Resource<anyhow::Result<PostsListResponse>>,
+  resource: Resource<Result<PostsListResponse, AppError>>,
 ) -> Element {
   let navigator = use_navigator();
   let AppState {
@@ -20,11 +20,13 @@ pub fn PostCard(
   } = consume_context::<AppState>();
 
   let handle_delete = move |_| async move {
-    let _ = client()
+    if let Err(err) = client()
       .delete_post(auth().unwrap_or_default().token, id)
       .await
-      .expect("Failed to delete post");
-    refetch.restart();
+    {
+      error!(err = ?err);
+    }
+    resource.restart();
   };
 
   rsx! {

@@ -32,17 +32,23 @@ pub fn Register() -> Element {
         email.read().to_string(),
         password.read().to_string(),
       )
-      .await
-      .unwrap();
+      .await;
 
-    let user_data = UserData {
-      token: format!("Bearer {}", auth_response.token),
-      user_id: auth_response.user.user_id,
-    };
+    match auth_response {
+      Ok(data) => {
+        let user_data = UserData {
+          token: format!("Bearer {}", data.token),
+          user_id: data.user.user_id,
+        };
 
-    auth.set(Some(user_data.clone()));
-    storage.set(json!(user_data).to_string());
-    navigator.push(Route::Home {});
+        auth.set(Some(user_data.clone()));
+        storage.set(json!(user_data).to_string());
+        navigator.push(Route::Home {});
+      }
+      Err(err) => {
+        error!(err = ?err);
+      }
+    }
   };
 
   rsx! {

@@ -1,5 +1,5 @@
 [package]
-name = "wasm-fe"
+name = "blog-fe"
 description = ""
 authors.workspace = true
 version.workspace = true
@@ -16,6 +16,7 @@ dioxus-sdk-storage = "0.7.0"
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+thiserror.workspace = true
 
 
 [build-dependencies]
