@@ -8,6 +8,10 @@ license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 
+[[bin]]
+name = "blog-cli"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0.100"
 blog-client = { path = "../blog-client" }
