@@ -1,6 +1,6 @@
 [package]
 name = "blog-server"
-description = "Blog http and grpc API server"
+description = "Blog http and grpc server"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true

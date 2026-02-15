@@ -1,6 +1,6 @@
 [package]
 name = "blog-client"
-description = ""
+description = "Blog client builder"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true

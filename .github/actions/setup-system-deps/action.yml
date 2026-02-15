@@ -1,0 +1,31 @@
+name: "Setup system dependencies"
+description: Install system dependencies required for workspace crates
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install protobuf-compiler
+        sudo apt install libwebkit2gtk-4.1-dev \
+          build-essential \
+          wget \
+          file \
+          libxdo-dev \
+          libssl-dev \
+          libayatana-appindicator3-dev \
+          librsvg2-dev \
+          lld
+      shell: bash
+    - name: Install Macos dependencies
+      if: runner.os == 'Macos'
+      run: brew install protobuf
+      shell: bash
+    - name: Setup windows system dependencies
+      if: runner.os == 'Windows'
+      run: |
+        winget install protobuf --accept-source-agreements
+        winget install protobuf-compiler --accept-source-agreements
+      shell: cmd

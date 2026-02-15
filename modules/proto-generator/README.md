@@ -54,9 +54,9 @@ fn main() {
 ## Stack
 
 - [Rust](https://rust-lang.org/)
-- [tonic](https://docs.rs/tonic/latest/tonic/)
-- [tonic_prost_build](https://docs.rs/tonic-prost-build/latest/tonic_prost_build/)
-- [serde](https://docs.rs/serde/latest/serde/)
+- [Tonic](https://docs.rs/tonic/latest/tonic/)
+- [Tonic prost build](https://docs.rs/tonic-prost-build/latest/tonic_prost_build/)
+- [Serde](https://docs.rs/serde/latest/serde/)
 
 ## Credits
 

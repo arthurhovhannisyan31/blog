@@ -99,6 +99,10 @@ blog-server
 ## Stack
 
 - [Rust](https://rust-lang.org/)
+- [Actix](https://docs.rs/actix/latest/actix/)
+- [Tokio](https://docs.rs/tokio/latest/tokio/)
+- [Tonic](https://docs.rs/tonic/latest/tonic/)
+- [Serde](https://docs.rs/serde/latest/serde/)
 
 ## Credits
 

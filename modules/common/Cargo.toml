@@ -1,6 +1,6 @@
 [package]
 name = "common"
-description = ""
+description = "Workspace common modules"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true
