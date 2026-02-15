@@ -1,5 +1,15 @@
 use std::time::Duration;
 
+use crate::application::{
+  auth_service::AuthService, blog_service::BlogService,
+};
+use crate::data::{
+  post_repository::PostgresPostRepository,
+  user_repository::PostgresUserRepository,
+};
+use crate::presentation::grpc::constants::USER_ID_HEADER;
+use crate::presentation::http::{dto, posts::ensure_owner};
+use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use common::utils::get_next_pagination;
 use proto_generator::blog::{
   AuthRequest, AuthResponse, AuthenticatedUser, CreatePostRequest,
@@ -12,16 +22,6 @@ use tonic::codegen::tokio_stream;
 use tonic::metadata::MetadataMap;
 use tonic::{Code, Request, Response, Status};
 use tracing::info;
-
-use crate::application::{
-  auth_service::AuthService, blog_service::BlogService,
-};
-use crate::data::{
-  post_repository::PostgresPostRepository,
-  user_repository::PostgresUserRepository,
-};
-use crate::presentation::grpc::constants::USER_ID_HEADER;
-use crate::presentation::http::{dto, posts::ensure_owner};
 
 #[derive(Clone)]
 pub struct GrpcBlogPublicServiceImpl {
@@ -124,16 +124,19 @@ impl BlogPublicService for GrpcBlogPublicServiceImpl {
     let request = request.into_inner();
 
     let total = self.blog_service.get_posts_count().await?;
+    let limit = request.limit.unwrap_or(QUERY_LIMIT as i64);
+    let offset = request.offset.unwrap_or(QUERY_OFFSET as i64);
+
     let posts: Vec<PostResponse> = self
       .blog_service
-      .list_posts(request.limit, request.offset)
+      .list_posts(limit, offset)
       .await?
       .into_iter()
       .map(PostResponse::from)
       .collect();
 
     let (next_offset, next_limit) =
-      get_next_pagination(total as u64, request.limit as u64);
+      get_next_pagination(total as u64, limit as u64);
 
     Ok(Response::new(PostsListResponse {
       posts,

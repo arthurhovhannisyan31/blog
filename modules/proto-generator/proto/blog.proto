@@ -52,8 +52,8 @@ message GetPostRequest {
   int64 id = 1;
 }
 message ListPostsRequest {
-  int64 limit = 1;
-  int64 offset = 2;
+  optional int64 limit = 1;
+  optional int64 offset = 2;
 }
 message PostsListResponse {
   repeated PostResponse posts = 1;
