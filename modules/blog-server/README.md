@@ -88,7 +88,11 @@ The `JWT_SECRET` and `DATABASE_URL` are required.
 
 ### Run
 
-Please find the latest build binaries in
+Please run `make build` from root of the project to build your version of binaries with provided `.env` file and run
+`blog-server` from
+`target/release` folder.
+
+You can use pre-build binaries with default environment variables from
 the [GH Releases](https://github.com/arthurhovhannisyan31/blog/releases).
 Download the archived binaries for your OS and use the `blog-server` from `target/release` folder.
 
@@ -100,9 +104,11 @@ blog-server
 
 - [Rust](https://rust-lang.org/)
 - [Actix](https://docs.rs/actix/latest/actix/)
+- [Serde](https://docs.rs/serde/latest/serde/)
+- [Thiserror](https://docs.rs/thiserror/latest/thiserror/)
 - [Tokio](https://docs.rs/tokio/latest/tokio/)
 - [Tonic](https://docs.rs/tonic/latest/tonic/)
-- [Serde](https://docs.rs/serde/latest/serde/)
+- [Tracing](https://docs.rs/tracing/latest/tracing/)
 
 ## Credits
 

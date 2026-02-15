@@ -33,6 +33,3 @@ path = "examples/grpc_client_example.rs"
 
 [lints]
 workspace = true
-
-[build-dependencies]
-tonic-prost-build = "0.14"

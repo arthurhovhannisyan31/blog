@@ -17,7 +17,9 @@ impl BlogClient {
     match transport.clone() {
       Transport::Grpc(addr) => {
         let client = GrpcBlogClient::new(addr).await.map_err(|e| {
-          BlogClientError::Internal(format!("Failed builing grpc client {e:?}"))
+          BlogClientError::Internal(format!(
+            "Failed building grpc client {e:?}"
+          ))
         })?;
 
         Ok(Self {

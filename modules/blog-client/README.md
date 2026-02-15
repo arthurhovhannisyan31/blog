@@ -9,14 +9,45 @@
 
 ## Overview
 
+This crate provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols.
+
 ## Description
+
+Both, `HTTP` and `gRPC` clients implement [AbstractBlogClient](./src/lib.rs) trait and can be used instead of each
+other.
+The [HTTP client](./src/http_client.rs) uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) as transport
+implementation, the [gRPC client](./src/grpc_client.rs)
+uses generated client from [proto_generator](../proto-generator/README.md) crate.
+Client builder provides `Transport` enum for building `HTTP` or `gRPC` server address.
+Address should be compatible with [SocketAddr](https://doc.rust-lang.org/beta/std/net/enum.SocketAddr.html) trait.
 
 ## Usage
 
+Please add the `blog-client` as dependency to your project:
+
+```
+// Cargo.toml
+
+blog-client = { path = "./modules/blog-client" }
+```
+
+```rust
+use blog_client::{Transport, client::BlogClient};
+
+fn main() -> anyhow::Error<BlogClient> {
+  let transport = Transport::Http("http_addr");
+
+  let client = BlogClient::new(transport).await?;
+}
+```
 
 ## Stack
 
 - [Rust](https://rust-lang.org/)
+- [Reqwest](https://docs.rs/reqwest/latest/reqwest/)
+- [Thiserror](https://docs.rs/thiserror/latest/thiserror/)
+- [Tonic](https://docs.rs/tonic/latest/tonic/)
+- [Tracing](https://docs.rs/tracing/latest/tracing/)
 
 ## Credits
 
