@@ -9,34 +9,32 @@
 
 ## Overview
 
-The `blog cli` is a binary implementation of `blog-client` crate and provides simple access to all server APIs,
+The `blog cli` is a binary implementation of the `blog-client` crate and provides simple access to all server APIs,
 implementing `HTTP` and `gRPC` protocols.
 
 ## Description
 
-Please run `blog-cli -h` for detailed list of supported commands and nested commands.
-The `blog cli` supports arguments validation:
+Please run `blog-cli -h` for a detailed list of supported commands and nested commands.
+The `blog cli` supports argument validation:
 
 - `server` value should be compatible with [SocketAddr](https://doc.rust-lang.org/beta/std/net/enum.SocketAddr.html)
   trait.
-- `username`, `email`, `password`, post `title` fields should be non-empty strings
+- `username`, `email`, `password`, and post `title` fields should be non-empty strings
 - post `content` though might be missing
 - pagination `limit` and `offset` arguments are optional
 
-The `blog cli` stores authorization token in a local file `.blog_token` hence make sure binary has sufficient rights for
+The `blog cli` stores authorization token in a local file `.blog_token` hence make sure the binary has sufficient rights
+for
 file-system access.
 
 ## Usage
 
-Please run `make build` from root of the project to build your version of binaries with provided `.env` file and run
-`blog-cli` from
-`target/release` folder.
+Please find the latest build binary for `cli` in
+the [GH Releases](https://github.com/arthurhovhannisyan31/blog/releases).
+Download the archived binary for your OS and run it from the `target/release` folder.
 
-> You can use pre-build binaries with default environment variables from
-> the [GH Releases](https://github.com/arthurhovhannisyan31/blog/releases).
-> Download the archived binaries for your OS and use the `blog-cli` from `target/release` folder.
-
-You can use the following list of commands as example. Please provide `blog-cli --grpc` flag to use `gRPC` protocol.
+You can use the following list of commands as example. Please provide the `blog-cli --grpc` flag to use the `gRPC`
+protocol.
 
 ```shell
 blog-cli register --username "ivan" --email "ivan@example.com" --password "secret123".
@@ -64,7 +62,7 @@ Crate implemented as part of the [Yandex practicum](https://practicum.yandex.ru/
 
 ## License
 
-Licensed under either of at your option.
+Licensed under either of your options.
 
 * Apache License, Version 2.0, [LICENSE-APACHE](./LICENSE_APACHE) or http://www.apache.org/licenses/LICENSE-2.0
 * MIT license [LICENSE-MIT](./LICENSE_MIT) or http://opensource.org/licenses/MIT

@@ -14,7 +14,7 @@ in [Protobuf schema](./proto/blog.proto).
 
 ## Description
 
-Crate includes: `server` and `client` traits, `message`s types and `reflection api` descriptors.
+Crate includes: `server` and `client` traits, `message` types and `reflection api` descriptors.
 All generated `message` structs implement `serde::Serialize, serde::Deserialize` traits.
 
 ## Usage
@@ -64,7 +64,7 @@ Crate implemented as part of the [Yandex practicum](https://practicum.yandex.ru/
 
 ## License
 
-Licensed under either of at your option.
+Licensed under either of your options.
 
 * Apache License, Version 2.0, [LICENSE-APACHE](./LICENSE_APACHE) or http://www.apache.org/licenses/LICENSE-2.0
 * MIT license [LICENSE-MIT](./LICENSE_MIT) or http://opensource.org/licenses/MIT
