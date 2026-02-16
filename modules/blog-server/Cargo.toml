@@ -1,6 +1,6 @@
 [package]
 name = "blog-server"
-description = "Blog http and grpc API server"
+description = "Blog http and grpc server"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true
@@ -9,7 +9,7 @@ repository.workspace = true
 rust-version.workspace = true
 
 [[bin]]
-name = "blgo-server"
+name = "blog-server"
 path = "src/main.rs"
 
 [dependencies]

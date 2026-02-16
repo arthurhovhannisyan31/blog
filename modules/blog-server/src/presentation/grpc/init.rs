@@ -20,7 +20,7 @@ use crate::infrastructure::{config::AppConfig, jwt::JwtService};
 use crate::presentation::grpc::auth::{
   AuthInterceptor, AuthValidationServiceImpl,
 };
-use crate::presentation::grpc::server::{
+use crate::presentation::grpc::service::{
   GrpcBlogProtectedServiceImpl, GrpcBlogPublicServiceImpl,
 };
 

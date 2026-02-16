@@ -9,14 +9,54 @@
 
 ## Overview
 
+The `blog cli` is a binary implementation of `blog-client` crate and provides simple access to all server APIs,
+implementing `HTTP` and `gRPC` protocols.
+
 ## Description
+
+Please run `blog-cli -h` for detailed list of supported commands and nested commands.
+The `blog cli` supports arguments validation:
+
+- `server` value should be compatible with [SocketAddr](https://doc.rust-lang.org/beta/std/net/enum.SocketAddr.html)
+  trait.
+- `username`, `email`, `password`, post `title` fields should be non-empty strings
+- post `content` though might be missing
+- pagination `limit` and `offset` arguments are optional
+
+The `blog cli` stores authorization token in a local file `.blog_token` hence make sure binary has sufficient rights for
+file-system access.
 
 ## Usage
 
+Please run `make build` from root of the project to build your version of binaries with provided `.env` file and run
+`blog-cli` from
+`target/release` folder.
+
+> You can use pre-build binaries with default environment variables from
+> the [GH Releases](https://github.com/arthurhovhannisyan31/blog/releases).
+> Download the archived binaries for your OS and use the `blog-cli` from `target/release` folder.
+
+You can use the following list of commands as example. Please provide `blog-cli --grpc` flag to use `gRPC` protocol.
+
+```shell
+blog-cli register --username "ivan" --email "ivan@example.com" --password "secret123".
+blog-cli login --username "ivan" --password "secret123".
+blog-cli create --title "Мой первый пост" --content "Содержание".
+blog-cli create --title "Мой первый пост" --content "Содержание"
+blog-cli get --id 1.
+blog-cli update --id 1 --title "Обновлённый заголовок".
+blog-cli delete --id 1.
+blog-cli list --limit 20 --offset 0.
+```
 
 ## Stack
 
 - [Rust](https://rust-lang.org/)
+- [Clap](https://docs.rs/clap/latest/clap/)
+- [Serde](https://docs.rs/serde/latest/serde/)
+- [Thiserror](https://docs.rs/thiserror/latest/thiserror/)
+- [Tokio](https://docs.rs/tokio/latest/tokio/)
+- [Tracing](https://docs.rs/tracing/latest/tracing/)
 
 ## Credits
 

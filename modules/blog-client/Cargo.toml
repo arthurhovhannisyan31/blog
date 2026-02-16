@@ -1,6 +1,6 @@
 [package]
 name = "blog-client"
-description = ""
+description = "Blog client builder"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true
@@ -33,6 +33,3 @@ path = "examples/grpc_client_example.rs"
 
 [lints]
 workspace = true
-
-[build-dependencies]
-tonic-prost-build = "0.14"
