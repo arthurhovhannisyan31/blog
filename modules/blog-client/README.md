@@ -9,12 +9,12 @@
 
 ## Overview
 
-This crate provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols access through single
+This crate provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols access through a single
 entry point.
 
 ## Description
 
-Both, `HTTP` and `gRPC` clients implement [AbstractBlogClient](./src/lib.rs) trait and can be used instead of each
+Both, `HTTP` and `gRPC` clients implement the [AbstractBlogClient](./src/lib.rs) trait and can be used instead of each
 other.
 The [HTTP client](./src/http_client.rs) uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) as transport
 implementation, the [gRPC client](./src/grpc_client.rs)
@@ -24,7 +24,7 @@ Address should be compatible with [SocketAddr](https://doc.rust-lang.org/beta/st
 
 ## Usage
 
-Please add the `blog-client` as dependency to your project:
+Please add the `blog-client` as a dependency to your project:
 
 ```
 // Cargo.toml
@@ -63,7 +63,7 @@ Crate implemented as part of the [Yandex practicum](https://practicum.yandex.ru/
 
 ## License
 
-Licensed under either of at your option.
+Licensed under either of your options.
 
 * Apache License, Version 2.0, [LICENSE-APACHE](./LICENSE_APACHE) or http://www.apache.org/licenses/LICENSE-2.0
 * MIT license [LICENSE-MIT](./LICENSE_MIT) or http://opensource.org/licenses/MIT
