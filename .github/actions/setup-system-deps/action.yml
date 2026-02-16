@@ -26,7 +26,5 @@ runs:
     - name: Setup windows system dependencies
       if: runner.os == 'Windows'
       run: |
-        winget install protobuf-compiler --accept-source-agreements --locale "US"
+        winget install protobuf-compiler --silent --accept-source-agreements --accept-package-agreements --locale "US"
       shell: cmd
-
-# winget install protobuf --accept-source-agreements
