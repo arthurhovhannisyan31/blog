@@ -9,7 +9,8 @@
 
 ## Overview
 
-This crate provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols.
+This crate provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols access through single
+entry point.
 
 ## Description
 
@@ -39,6 +40,13 @@ fn main() -> anyhow::Error<BlogClient> {
 
   let client = BlogClient::new(transport).await?;
 }
+```
+
+Please take a look at [examples](./examples) for details of usage. You can run them from `blog-client` crate root:
+
+```shell
+cargo run --example blog-client-http
+cargo run --example blog-client-grpc
 ```
 
 ## Stack

@@ -92,9 +92,9 @@ Please run `make build` from root of the project to build your version of binari
 `blog-server` from
 `target/release` folder.
 
-You can use pre-build binaries with default environment variables from
-the [GH Releases](https://github.com/arthurhovhannisyan31/blog/releases).
-Download the archived binaries for your OS and use the `blog-server` from `target/release` folder.
+> You can use pre-build binaries with default environment variables from
+> the [GH Releases](https://github.com/arthurhovhannisyan31/blog/releases).
+> Download the archived binaries for your OS and use the `blog-server` from `target/release` folder.
 
 ```shell
 blog-server
