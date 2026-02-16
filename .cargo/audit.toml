@@ -1,5 +1,4 @@
 [advisories]
 ignore = [
-    "RUSTSEC-2023-0071", #No fixed upgrade is available! 06.02.2026
-    "RUSTSEC-2026-0009", #No fixed upgrade is available! 06.02.2026
+    "RUSTSEC-2023-0071", #No fixed upgrade is available! 16.02.2026
 ]
