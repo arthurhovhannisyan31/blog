@@ -2,7 +2,7 @@ use tracing_subscriber::{EnvFilter, fmt};
 
 pub fn init_logging() {
   let filter = EnvFilter::try_from_default_env()
-    .or_else(|_| EnvFilter::try_new("info,bank_api=debug"))
+    .or_else(|_| EnvFilter::try_new("info,blog-server=debug"))
     .unwrap();
 
   let subscriber = fmt()
