@@ -10,9 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
       - name: Dependabot metadata
         id: dependabot-metadata
         uses: dependabot/fetch-metadata@v2
+        with:
+          alert-lookup: true
+          compat-lookup: true
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Enable auto-merge for Dependabot PRs
         if: ${{steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'}}
         run: |
