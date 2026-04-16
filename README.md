@@ -9,11 +9,36 @@
 
 ## Overview
 
-This is a blog workspace, which
-includes [back-end](./modules/blog-server/README.md), [front-end](./modules/blog-fe/README.md), [cli tool](./modules/blog-cli/README.md)
-and a set of utility crates.
+**Rust Blog Workspace**
 
-Workspace crates support registration and authentication of users using JWT tokens and full CRUD operation on posts.
+A full-stack Rust workspace featuring a high-performance backend, a reactive web frontend,
+and a versatile CLI tool.
+This workspace demonstrates a clean architecture approach, supporting both HTTP and
+gRPC protocols with shared logic and automated code generation.
+
+**Core Impact & Achievements**:
+
+- **Dual-Protocol Architecture**: Engineered a unified [backend](./modules/blog-server/README.md) supporting both REST (
+  Actix) and gRPC (Tonic).
+  This allows high-speed inter-service communication via gRPC while maintaining broad compatibility through a standard
+  HTTP API.
+- **Security-First Design**: Implemented industry-standard JWT authentication with Argon2 password hashing, ensuring
+  sensitive
+  user data remains encrypted and protected against modern brute-force attacks.
+- **Optimized Full-Stack Flow**: Developed a reactive [frontend](./modules/blog-fe/README.md) using Dioxus, featuring a
+  persistent session management
+  system that maintains user state across reloads for a seamless UX.
+- **Unified Client Strategy**: Built a versatile [CLI tool](./modules/blog-cli/README.md) and shared Client crate that
+  abstracts complex API logic. This
+  allows developers to toggle between HTTP and gRPC protocols via a single entry point, significantly reducing
+  integration
+  friction.
+- **Scalable Infrastructure**: Designed a Clean Architecture codebase (Domain, Data, Application, Presentation) backed
+  by
+  PostgreSQL. Integrated automated schema migrations to ensure 100% database consistency across deployments.
+- **Developer Efficiency**: Leveraged [Protobuf](./modules/proto-generator/README.md) reflection and automated code
+  generation to accelerate the development cycle,
+  enabling instant API discovery and strongly-typed service contracts.
 
 ## Description
 
@@ -24,17 +49,14 @@ Workspace crates support registration and authentication of users using JWT toke
   The `gRPC` server supports the reflection API, which is very handy using CLI tools like `grpcurl`.
   The server uses a single [postgres](https://www.postgresql.org/) database for implemented protocols.
 
-
 - [Front-end](./modules/blog-fe/README.md) is build with the [Dioxus](https://dioxuslabs.com/) framework.
   The application supports regular user authentication flow and posts CRUD operations.
   The application stores the authentication token in the client
   persistent storage (local-storage for browser) and restores token on page reload.
 
-
 - [Cli](./modules/blog-cli/README.md) is a binary implementation of [blog-client](./modules/blog-client/README.md) crate
   and provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols.
   CLI supports argument validation and provides help output.
-
 
 - [Client](./modules/blog-client/README.md) provides simple access to all server APIs, implementing `HTTP` and `gRPC`
   protocols access through a single entry point.
@@ -44,14 +66,12 @@ Workspace crates support registration and authentication of users using JWT toke
   uses generated client from [proto_generator](../proto-generator/README.md) crate.
   Client builder provides `Transport` enum for building `HTTP` or `gRPC` server address.
 
-
 - [Proto-generator](./modules/proto-generator/README.md) is a utility crate that provides generated idiomatic `Rust`
   code for `gRPC` services declared
   in [Protobuf schema](./proto/blog.proto). Crate includes: `server` and `client` traits, `message` types and
   `reflection api` descriptors.
 
-
-- [Common](./modules/proto-generator/README.md) is a crate that includes modules reused in workspace crates.
+- [Common](./modules/common/README.md) is a crate that includes modules reused in workspace crates.
 
 ## Usage
 
