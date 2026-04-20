@@ -13,9 +13,16 @@ pub trait PostRepository: Send + Sync {
     limit: i64,
     offset: i64,
   ) -> Result<Vec<Post>, DomainError>;
+  async fn list_active(
+    &self,
+    limit: i64,
+    offset: i64,
+  ) -> Result<Vec<Post>, DomainError>;
   async fn get_row_count(&self) -> Result<i64, DomainError>;
+  async fn get_active_row_count(&self) -> Result<i64, DomainError>;
   async fn update(&self, id: i64, post: Post) -> Result<Post, DomainError>;
   async fn delete(&self, id: i64) -> Result<(), DomainError>;
+  async fn soft_delete(&self, id: i64) -> Result<(), DomainError>;
 }
 
 #[derive(Clone)]
@@ -37,7 +44,7 @@ impl PostRepository for PostgresPostRepository {
       r#"
         INSERT INTO posts (title, content, author_id)
         VALUES ($1, $2, $3)
-        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at
+        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at, posts.deleted_at
       "#,
       post.title,
       post.content,
@@ -66,7 +73,29 @@ impl PostRepository for PostgresPostRepository {
     .await
     .map_err(|e| {
       error!("Failed to delete post: {}", e);
-      // TODO Ensure 404 returned for missing post
+      error!(
+        constraint = e.as_database_error().and_then(|db| db.constraint()),
+        "DB Constraint: Delete: "
+      );
+
+      DomainError::Internal(format!("database error: {}", e))
+    })?;
+
+    Ok(())
+  }
+  async fn soft_delete(&self, id: i64) -> Result<(), DomainError> {
+    sqlx::query(
+      r#"
+        UPDATE posts
+        SET deleted_at = NOW()
+        WHERE posts.id = $1
+      "#,
+    )
+    .bind(id)
+    .fetch_optional(&self.pool)
+    .await
+    .map_err(|e| {
+      error!("Failed to delete post: {}", e);
       error!(
         constraint = e.as_database_error().and_then(|db| db.constraint()),
         "DB Constraint: Delete: "
@@ -81,7 +110,7 @@ impl PostRepository for PostgresPostRepository {
     let row = sqlx::query_as!(
       Post,
       r#"
-        SELECT posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at
+        SELECT posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at, posts.deleted_at
         from posts
         WHERE posts.id = $1
       "#,
@@ -128,6 +157,36 @@ impl PostRepository for PostgresPostRepository {
 
     Ok(rows)
   }
+  async fn list_active(
+    &self,
+    limit: i64,
+    offset: i64,
+  ) -> Result<Vec<Post>, DomainError> {
+    let rows = sqlx::query_as!(
+      Post,
+      r#"
+        SELECT *
+        from posts
+        WHERE deleted_at is NULL
+        LIMIT $1 OFFSET $2;
+      "#,
+      limit,
+      offset,
+    )
+    .fetch_all(&self.pool)
+    .await
+    .map_err(|e| {
+      error!("Failed to fetch posts: {}", e);
+      error!(
+        constraint = e.as_database_error().and_then(|db| db.constraint()),
+        "DB Constraint: Get *: "
+      );
+
+      DomainError::Internal(format!("database error: {}", e))
+    })?;
+
+    Ok(rows)
+  }
   async fn get_row_count(&self) -> Result<i64, DomainError> {
     let count = sqlx::query_scalar!("SELECT COUNT(*) from posts",)
       .fetch_one(&self.pool)
@@ -144,6 +203,24 @@ impl PostRepository for PostgresPostRepository {
 
     Ok(count.unwrap_or(0))
   }
+  async fn get_active_row_count(&self) -> Result<i64, DomainError> {
+    let count = sqlx::query_scalar!(
+      "SELECT COUNT(*) from posts WHERE deleted_at is NULL",
+    )
+    .fetch_one(&self.pool)
+    .await
+    .map_err(|e| {
+      error!("Failed to fetch posts: {}", e);
+      error!(
+        constraint = e.as_database_error().and_then(|db| db.constraint()),
+        "DB Constraint: Get *: "
+      );
+
+      DomainError::Internal(format!("database error: {}", e))
+    })?;
+
+    Ok(count.unwrap_or(0))
+  }
   async fn update(&self, id: i64, post: Post) -> Result<Post, DomainError> {
     let row = sqlx::query_as!(
       Post,
@@ -153,7 +230,7 @@ impl PostRepository for PostgresPostRepository {
             content = $3,
             created_at = NOW()
         WHERE id = $1
-        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at
+        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at, posts.deleted_at
       "#,
       id,
       post.title,

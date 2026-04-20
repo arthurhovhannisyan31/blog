@@ -29,13 +29,19 @@ where
 
   pub async fn get_post(&self, id: i64) -> Result<Post, ApplicationError> {
     match self.repo.get(id).await.map_err(ApplicationError::from)? {
-      Some(post) => Ok(post),
+      Some(post) => {
+        if post.deleted_at.is_some() {
+          return Err(ApplicationError::NotFound(format!("Post {}", id)));
+        }
+
+        Ok(post)
+      }
       None => Err(ApplicationError::NotFound(format!("Post {}", id))),
     }
   }
 
   pub async fn get_posts_count(&self) -> Result<i64, ApplicationError> {
-    let count = self.repo.get_row_count().await?;
+    let count = self.repo.get_active_row_count().await?;
 
     Ok(count)
   }
@@ -47,7 +53,7 @@ where
   ) -> Result<Vec<Post>, ApplicationError> {
     self
       .repo
-      .list(limit, offset)
+      .list_active(limit, offset)
       .await
       .map_err(ApplicationError::from)
   }
@@ -62,6 +68,10 @@ where
     let post =
       Post::new(title, content, author_id).map_err(ApplicationError::from)?;
 
+    if post.deleted_at.is_some() {
+      return Err(ApplicationError::NotFound(format!("Post {}", id)));
+    }
+
     self
       .repo
       .update(id, post)
@@ -70,6 +80,10 @@ where
   }
 
   pub async fn delete_post(&self, id: i64) -> Result<(), ApplicationError> {
-    self.repo.delete(id).await.map_err(ApplicationError::from)
+    self
+      .repo
+      .soft_delete(id)
+      .await
+      .map_err(ApplicationError::from)
   }
 }
