@@ -24,12 +24,12 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 
 [[example]]
-name = "blog-client-http"
-path = "examples/http_client_example.rs"
+name = "http-client"
+path = "examples/http_client.rs"
 
 [[example]]
-name = "blog-client-grpc"
-path = "examples/grpc_client_example.rs"
+name = "grpc-client"
+path = "examples/grpc_client.rs"
 
 [lints]
 workspace = true

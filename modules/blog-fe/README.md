@@ -33,7 +33,7 @@ Please run the following command in the root of this crate. You can provide your
 `dx serve --port <PORT>` flag.
 
 ```shell
-dx serve
+dx serve --port 3030
 ```
 
 ## Stack
