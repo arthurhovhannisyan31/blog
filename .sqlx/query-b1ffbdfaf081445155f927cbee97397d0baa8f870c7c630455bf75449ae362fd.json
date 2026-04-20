@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at\n        from posts\n        WHERE posts.id = $1\n      ",
+  "query": "\n        SELECT users.id, users.username, users.email, users.password_hash, users.created_at\n        FROM users\n        WHERE users.email = $1\n      ",
   "describe": {
     "columns": [
       {
@@ -10,33 +10,28 @@
       },
       {
         "ordinal": 1,
-        "name": "title",
-        "type_info": "Varchar"
+        "name": "username",
+        "type_info": "Text"
       },
       {
         "ordinal": 2,
-        "name": "content",
+        "name": "email",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
-        "name": "author_id",
-        "type_info": "Int8"
+        "name": "password_hash",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 5,
-        "name": "updated_at",
-        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
@@ -44,9 +39,8 @@
       false,
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "2dba71dadd3954439c253e5dc9d32a25638ec6a8126521a0412d5df6a94aedd9"
+  "hash": "b1ffbdfaf081445155f927cbee97397d0baa8f870c7c630455bf75449ae362fd"
 }

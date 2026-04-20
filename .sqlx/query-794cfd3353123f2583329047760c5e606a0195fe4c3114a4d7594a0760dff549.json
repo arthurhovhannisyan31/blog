@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO posts (title, content, author_id)\n        VALUES ($1, $2, $3)\n        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at\n      ",
+  "query": "\n        UPDATE posts\n        SET title = $2,\n            content = $3,\n            created_at = NOW()\n        WHERE id = $1\n        RETURNING posts.id, posts.title, posts.content, posts.author_id, posts.created_at, posts.updated_at, posts.deleted_at\n      ",
   "describe": {
     "columns": [
       {
@@ -32,13 +32,18 @@
         "ordinal": 5,
         "name": "updated_at",
         "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
+        "Int8",
         "Varchar",
-        "Text",
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
@@ -47,8 +52,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "d4a25de5dcc42dea615ff631baac4e3c10641be7292901fa672d4f1f5167ae3b"
+  "hash": "794cfd3353123f2583329047760c5e606a0195fe4c3114a4d7594a0760dff549"
 }
