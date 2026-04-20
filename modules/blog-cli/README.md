@@ -37,14 +37,13 @@ You can use the following list of commands as example. Please provide the `blog-
 protocol.
 
 ```shell
-blog-cli register --username "test" --email "test@test.test" --password "test".
-blog-cli login --username "test" --password "test".
-blog-cli create --title "test" --content "test".
+blog-cli register --username "test" --email "test@test.test" --password "test"
+blog-cli login --email "test@test.test" --password "test"
 blog-cli create --title "test" --content "test"
-blog-cli get --id 1.
-blog-cli update --id 1 --title "test".
-blog-cli delete --id 1.
-blog-cli list --limit 20 --offset 0.
+blog-cli get --id 1
+blog-cli update --id 1 --title "test"
+blog-cli delete --id 1
+blog-cli list --limit 20 --offset 0
 ```
 
 ## Stack

@@ -12,6 +12,7 @@ pub struct Post {
   pub author_id: i64,
   pub created_at: DateTime<Utc>,
   pub updated_at: DateTime<Utc>,
+  pub deleted_at: Option<DateTime<Utc>>,
 }
 
 impl Post {
@@ -31,6 +32,7 @@ impl Post {
       author_id,
       created_at: Utc::now(),
       updated_at: Utc::now(),
+      deleted_at: None,
     })
   }
 }

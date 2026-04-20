@@ -45,8 +45,8 @@ fn main() -> anyhow::Error<BlogClient> {
 Please take a look at [examples](./examples) for details of usage. You can run them from `blog-client` crate root:
 
 ```shell
-cargo run --example blog-client-http
-cargo run --example blog-client-grpc
+cargo run --example http-client
+cargo run --example grpc-client
 ```
 
 ## Stack
