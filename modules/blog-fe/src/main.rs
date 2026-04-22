@@ -1,12 +1,12 @@
 use dioxus::prelude::*;
 use dioxus_sdk_storage::{LocalStorage, use_synced_storage};
-
 mod components;
+
 mod configs;
-mod generated;
 mod infrastructure;
 mod view;
 
+use crate::configs::app::AppConfig;
 use crate::configs::assets::assets;
 use crate::configs::route::Route;
 use crate::infrastructure::client::BlogClient;
@@ -18,8 +18,10 @@ fn main() {
 
 #[component]
 fn App() -> Element {
-  let api_base_url =
-    format!("http://{}:{}/api", generated::HOST, generated::PORT);
+  let AppConfig { port, host } =
+    AppConfig::from_env().expect("Failed reading app config");
+
+  let api_base_url = format!("http://{}:{}/api", host, port);
   let client = use_signal(|| {
     BlogClient::new(api_base_url).expect("Failed to build api client")
   });
