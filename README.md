@@ -73,6 +73,8 @@ gRPC protocols with shared logic and automated code generation.
 
 - [Common](./modules/common/README.md) is a crate that includes modules reused in workspace crates.
 
+![img.png](./static/images/blog-system-architecture.png)
+
 ## Usage
 
 Ensure the local `postgres` database is up and running, the `.env` file is populated in the workspace root.
