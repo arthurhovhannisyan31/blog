@@ -1,0 +1,44 @@
+# Systemctl
+Start/Stop postgresql instance to no conflict with Docker container
+sudo systemctl status postgresql
+sudo systemctl start postgresql
+sudo systemctl stop postgresql
+
+# compose
+docker compose --env-file .env --file ./configs/docker/docker-compose.yml up
+docker compose --env-file .env --file ./configs/docker/docker-compose.yml up --build
+DOCKER_BUILDKIT=1 docker compose --env-file .env --file ./docker-compose.yml up --build
+
+# debug compose
+docker compose exec server curl -f http://localhost:8080/api/v0/health
+
+# DB
+docker run -d --rm \
+  --name blog_postgres \
+  -e POSTGRES_PASSWORD=test \
+  -e POSTGRES_USER=test \
+  -e POSTGRES_DB=blog_db \
+  -p 5432:5432 \
+  --network blog_network \
+  postgres
+
+psql postgresql://test:test@0.0.0.0:5432/blog_db
+
+# BE
+docker build -f ./configs/docker/server.dockerfile -t server .
+
+docker run --rm -it \
+  --env-file=.env \
+  --network blog_network \
+  --name blog_server \
+  -p 8080:8080 \
+  server:latest
+
+# FE
+docker build -f ./configs/docker/web-client.dockerfile -t web-client .
+
+docker run --rm -it \
+  --network blog_network \
+  --name blog_web_client \
+  -p 3030:80 \
+  web-client:latest
