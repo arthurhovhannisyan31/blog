@@ -5,9 +5,8 @@ sudo systemctl start postgresql
 sudo systemctl stop postgresql
 
 # compose
-docker compose --env-file .env --file ./configs/docker/docker-compose.yml up
-docker compose --env-file .env --file ./configs/docker/docker-compose.yml up --build
-DOCKER_BUILDKIT=1 docker compose --env-file .env --file ./docker-compose.yml up --build
+docker compose --env-file .env --file ./docker-compose.yml up
+docker compose --env-file .env --file ./docker-compose.yml up --build
 
 # debug compose
 docker compose exec server curl -f http://localhost:8080/api/v0/health

@@ -77,6 +77,24 @@ gRPC protocols with shared logic and automated code generation.
 
 ## Usage
 
+### Docker
+
+Simply run following command to fire up the project.
+
+```shell
+docker compose up
+```
+
+In case if you have local instance of `postgres` running please disable it first:
+
+```shell
+sudo systemctl stop postgresql
+# Afterwards enable local postgres back
+sudo systemctl start postgresql
+```
+
+### Manually
+
 Ensure the local `postgres` database is up and running, the `.env` file is populated in the workspace root.
 
 Please find the latest build binaries for `server` and `cli` in
