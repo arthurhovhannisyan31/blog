@@ -18,7 +18,6 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 
-
 [build-dependencies]
 dotenvy = "0.15"
 
