@@ -1,0 +1,55 @@
+services:
+  builder:
+    container_name: blog_common
+    build:
+      dockerfile: ./configs/docker/builder.dockerfile
+  db:
+    container_name: blog_postgres
+    image: postgres:latest
+    env_file:
+      - ./.env
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  server:
+    container_name: blog_server
+    build:
+      dockerfile: ./configs/docker/server.dockerfile
+      additional_contexts:
+        builder: service:builder
+    depends_on:
+      builder:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+        restart: true
+    ports:
+      - "${SERVER_HTTP_PORT}:${SERVER_HTTP_PORT}"
+      - "${SERVER_GRPC_PORT}:${SERVER_GRPC_PORT}"
+    env_file:
+      - ./.env
+    healthcheck:
+      test: curl -f http://${SERVER_HOST}:${SERVER_HTTP_PORT}/api/v0/health || exit 1
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+  web-client:
+    container_name: blog_web_client
+    build:
+      dockerfile: ./configs/docker/web-client.dockerfile
+      additional_contexts:
+        builder: service:builder
+    depends_on:
+      builder:
+        condition: service_completed_successfully
+      server:
+        condition: service_healthy
+        restart: true
+    ports:
+      - "${WEB_CLIENT_PORT}:${NGINX_PORT}"
+    env_file:
+      - ./modules/blog-fe/.env #replace with local .env

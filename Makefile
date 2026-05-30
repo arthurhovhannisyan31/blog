@@ -1,11 +1,15 @@
 #.PHONY: prepare
 prepare: # setup git hooks overrides
 	./configs/git/setup.sh
-build:
-	cargo build --release
 sqlx-prepare:
 	cargo sqlx prepare --workspace
-
-#.PHONY: docker_build
-#docker_build:
-#    # ...
+# Exclude blog-fe, needs to be bundled by DX
+build:
+	cargo build \
+		-p blog-cli \
+		-p blog-client \
+		-p blog-server \
+		-p common \
+		-p proto-generator
+build-release:
+	make build --release

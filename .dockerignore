@@ -1,0 +1,15 @@
+.blog_token
+.dockerignore
+.env.template
+.git
+.github
+.gitignore
+.idea
+.rustfmt.toml
+LICENSE_APACHE
+LICENSE_MIT
+Makefile
+README.md
+notes
+static
+target

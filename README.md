@@ -77,6 +77,23 @@ gRPC protocols with shared logic and automated code generation.
 
 ## Usage
 
+### Docker
+
+If you have `docker` installed you can simply run following command:
+
+```shell
+docker compose up
+```
+
+Once you are done you can run docker artifacts cleanup:
+
+```shell
+docker container rm blog_postgres blog_common blog_server blog_web_client
+docker rmi postgres blog-builder blog-server blog-web-client
+```
+
+### Manually
+
 Ensure the local `postgres` database is up and running, the `.env` file is populated in the workspace root.
 
 Please find the latest build binaries for `server` and `cli` in

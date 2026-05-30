@@ -17,24 +17,26 @@ impl AppConfig {
   pub fn from_env() -> Result<Self, ServerError> {
     dotenvy::dotenv().ok();
 
-    let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let host =
+      std::env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".into());
 
-    let http_port = std::env::var("HTTP_PORT")
+    let http_port = std::env::var("SERVER_HTTP_PORT")
       .unwrap_or_else(|_| "8080".into())
       .parse()
       .map_err(|e| {
-        ServerError::VarError(format!("Invalid PORT variable: {e}"))
+        ServerError::VarError(format!("Invalid SERVER_HTTP_PORT variable: {e}"))
       })?;
-    let grpc_port = std::env::var("GRPC_PORT")
+    let grpc_port = std::env::var("SERVER_GRPC_PORT")
       .unwrap_or_else(|_| "50051".into())
       .parse()?;
-    let database_url = std::env::var("DATABASE_URL").map_err(|e| {
-      ServerError::VarError(format!("Missing DATABASE_URL: {e}"))
+    let database_url = std::env::var("SERVER_DATABASE_URL").map_err(|e| {
+      ServerError::VarError(format!("Missing SERVER_DATABASE_URL: {e}"))
     })?;
-    let jwt_secret = std::env::var("JWT_SECRET")
-      .map_err(|e| ServerError::VarError(format!("Missing JWT_SECRET: {e}")))?;
+    let jwt_secret = std::env::var("SERVER_JWT_SECRET").map_err(|e| {
+      ServerError::VarError(format!("Missing SERVER_JWT_SECRET: {e}"))
+    })?;
 
-    let cors_origins = std::env::var("CORS_ORIGINS")
+    let cors_origins = std::env::var("SERVER_CORS_ORIGINS")
       .unwrap_or_else(|_| "*".into())
       .split(',')
       .map(|s| s.trim().to_string())
