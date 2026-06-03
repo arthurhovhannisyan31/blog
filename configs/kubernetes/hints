@@ -1,0 +1,19 @@
+# prepare images for minikube
+docker build -t server -f ./configs/docker/server.dockerfile .
+docker build -t web-client -f ./configs/docker/web-client.dockerfile .
+
+# run minikube instance and load images into context
+minikube start
+minikube image load server:latest
+minikube image load web-client:latest
+
+# prepare k8s configs
+rm -rf *.yaml
+kompose convert -f docker-compose.yml
+kubectl apply -f '*.yaml'
+
+kubectl port-forward service/web-client-tcp 3000:3000
+kubectl port-forward service/server 8080:8080
+
+kubectl get all
+minikube service list

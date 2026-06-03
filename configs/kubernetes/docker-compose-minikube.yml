@@ -1,0 +1,35 @@
+services:
+  db:
+    container_name: blog_postgres
+    image: postgres:latest
+    env_file:
+      - ./.env
+    ports:
+      - "${PORT_DB}:${PORT_DB}"
+  server:
+    container_name: blog_server
+    image: server
+    depends_on:
+      - db
+    ports:
+      - "${SERVER_HTTP_PORT}:${SERVER_HTTP_PORT}"
+      - "${SERVER_GRPC_PORT}:${SERVER_GRPC_PORT}"
+    env_file:
+      - ./.env
+    labels:
+      kompose.service.type: nodeport
+      kompose.image-pull-policy: Never
+      kompose.service.expose: true
+  web-client:
+    container_name: blog_web_client
+    image: web-client
+    depends_on:
+      - server
+    ports:
+      - "${WEB_CLIENT_PORT}:${NGINX_PORT}"
+    env_file:
+      - ./modules/blog-fe/.env #replace with local .env
+    labels:
+      kompose.service.type: LoadBalancer
+      kompose.image-pull-policy: Never
+      kompose.service.expose: true
