@@ -46,3 +46,9 @@ docker run --rm -it \
 docker run -dit \
   --mount type=bind,source="$(pwd)"/target/dx/blog-fe/release/web/public,target=/usr/share/nginx/html \
   -p 3000:80 nginx:latest
+
+
+# Compose stats
+
+docker stats blog_web_client blog_server blog_postgres  --format "table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}"
+docker stats blog_web_client blog_server blog_postgres

@@ -3,6 +3,7 @@ services:
     container_name: blog_common
     build:
       dockerfile: ./configs/docker/builder.dockerfile
+  #================================================
   db:
     container_name: blog_postgres
     image: postgres:latest
@@ -13,7 +14,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.50'
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+  #================================================
   server:
     container_name: blog_server
     build:
@@ -35,8 +45,22 @@ services:
       test: curl -f http://${SERVER_HOST}:${SERVER_HTTP_PORT}/api/v0/health || exit 1
       interval: 10s
       timeout: 3s
-      start_period: 10s
+      start_period: 5s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.50'
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+  #================================================
   web-client:
     container_name: blog_web_client
     build:
@@ -53,3 +77,17 @@ services:
       - "${WEB_CLIENT_PORT}:${NGINX_PORT}"
     env_file:
       - ./modules/blog-fe/.env #replace with local .env
+    healthcheck:
+      test: curl -f http://localhost:${WEB_CLIENT_PORT} || exit 1
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.50'
+        reservations:
+          memory: 256M
+    restart: unless-stopped
