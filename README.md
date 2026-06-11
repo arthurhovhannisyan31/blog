@@ -85,6 +85,8 @@ If you have `docker` installed you can simply run following command:
 docker compose up
 ```
 
+The web client is available at: [https://localhost:3001](https://localhost:3001).
+
 Once you are done you can run docker artifacts cleanup:
 
 ```shell
