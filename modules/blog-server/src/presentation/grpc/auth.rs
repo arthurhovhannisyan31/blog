@@ -17,13 +17,13 @@ pub trait AuthValidationService: Send + Sync + 'static {
 
 #[derive(Clone)]
 pub struct AuthValidationServiceImpl {
-  auth_service: AuthService<PostgresUserRepository>,
+  auth_service: Arc<AuthService<PostgresUserRepository>>,
   jwt_service: Arc<JwtService>,
 }
 
 impl AuthValidationServiceImpl {
   pub fn new(
-    auth_service: AuthService<PostgresUserRepository>,
+    auth_service: Arc<AuthService<PostgresUserRepository>>,
     jwt_service: Arc<JwtService>,
   ) -> Self {
     Self {

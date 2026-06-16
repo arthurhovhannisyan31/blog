@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use actix_web::{
-  App, HttpServer,
-  dev::Server,
-  middleware::{DefaultHeaders, Logger},
+  dev::Server, middleware::{DefaultHeaders, Logger},
   web,
+  App,
+  HttpServer,
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 
@@ -24,8 +24,8 @@ use crate::presentation::{
 };
 
 pub fn init_http_server(
-  auth_service: AuthService<PostgresUserRepository>,
-  blog_service: BlogService<PostgresPostRepository>,
+  auth_service: Arc<AuthService<PostgresUserRepository>>,
+  blog_service: Arc<BlogService<PostgresPostRepository>>,
   jwt_service: Arc<JwtService>,
   config: AppConfig,
 ) -> std::io::Result<Server> {

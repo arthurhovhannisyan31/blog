@@ -1,14 +1,6 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use proto_generator::blog::{
-  FILE_DESCRIPTOR, blog_protected_service_server::BlogProtectedServiceServer,
-  blog_public_service_server::BlogPublicServiceServer,
-};
-use tonic::transport::{Error, Server};
-use tonic_middleware::InterceptorFor;
-use tonic_reflection::server::Builder;
-
 use crate::application::{
   auth_service::AuthService, blog_service::BlogService,
 };
@@ -23,10 +15,17 @@ use crate::presentation::grpc::auth::{
 use crate::presentation::grpc::service::{
   GrpcBlogProtectedServiceImpl, GrpcBlogPublicServiceImpl,
 };
+use proto_generator::blog::{
+  FILE_DESCRIPTOR, blog_protected_service_server::BlogProtectedServiceServer,
+  blog_public_service_server::BlogPublicServiceServer,
+};
+use tonic::transport::{Error, Server};
+use tonic_middleware::InterceptorFor;
+use tonic_reflection::server::Builder;
 
 pub fn init_grpc_server(
-  auth_service: AuthService<PostgresUserRepository>,
-  blog_service: BlogService<PostgresPostRepository>,
+  auth_service: Arc<AuthService<PostgresUserRepository>>,
+  blog_service: Arc<BlogService<PostgresPostRepository>>,
   jwt_service: Arc<JwtService>,
   config: &AppConfig,
 ) -> impl Future<Output = Result<(), Error>> {

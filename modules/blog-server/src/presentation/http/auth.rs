@@ -1,6 +1,7 @@
-use actix_web::{HttpResponse, Responder, get, post, web};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use chrono::Utc;
 use serde_json::json;
+use std::sync::Arc;
 use tracing::info;
 
 use crate::application::{auth_service::AuthService, error::ApplicationError};
@@ -19,7 +20,7 @@ pub async fn health() -> impl Responder {
 
 #[post("/auth/register")]
 pub async fn register(
-  service: web::Data<AuthService<PostgresUserRepository>>,
+  service: web::Data<Arc<AuthService<PostgresUserRepository>>>,
   payload: web::Json<CreateUserRequest>,
 ) -> Result<impl Responder, ApplicationError> {
   let user = service
@@ -46,7 +47,7 @@ pub async fn register(
 
 #[post("/auth/login")]
 pub async fn login(
-  service: web::Data<AuthService<PostgresUserRepository>>,
+  service: web::Data<Arc<AuthService<PostgresUserRepository>>>,
   payload: web::Json<AuthRequest>,
 ) -> Result<impl Responder, ApplicationError> {
   let token = service.login(&payload.email, &payload.password).await?;
