@@ -61,10 +61,10 @@ services:
         max-size: "50m"
         max-file: "5"
   #================================================
-  web-client:
-    container_name: blog_web_client
+  web-server:
+    container_name: blog_web_server
     build:
-      dockerfile: ./configs/docker/web-client.dockerfile
+      dockerfile: ./configs/docker/web-server.dockerfile
       additional_contexts:
         builder: service:builder
     depends_on:

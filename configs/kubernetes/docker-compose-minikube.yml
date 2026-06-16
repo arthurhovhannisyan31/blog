@@ -20,13 +20,13 @@ services:
       kompose.service.type: nodeport
       kompose.image-pull-policy: Never
       kompose.service.expose: true
-  web-client:
-    container_name: blog_web_client
-    image: web-client
+  web-server:
+    container_name: blog_web_server
+    image: web-server
     depends_on:
       - server
     ports:
-      - "${WEB_CLIENT_PORT}:${NGINX_PORT}"
+      - "${WEB_SERVER_HTTP_PORT}:${NGINX_PORT}"
     env_file:
       - ./modules/blog-fe/.env #replace with local .env
     labels:
