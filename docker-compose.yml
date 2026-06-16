@@ -39,6 +39,8 @@ services:
     ports:
       - "${SERVER_HTTP_PORT}:${SERVER_HTTP_PORT}"
       - "${SERVER_GRPC_PORT}:${SERVER_GRPC_PORT}"
+    environment:
+      - DOCKER_CONTAINER=true
     env_file:
       - .env
     healthcheck:

@@ -8,6 +8,7 @@ use crate::domain::{error::DomainError, post::Post};
 pub trait PostRepository: Send + Sync {
   async fn create(&self, post: Post) -> Result<Post, DomainError>;
   async fn get(&self, id: i64) -> Result<Option<Post>, DomainError>;
+  #[allow(unused)]
   async fn list(
     &self,
     limit: i64,
@@ -18,9 +19,11 @@ pub trait PostRepository: Send + Sync {
     limit: i64,
     offset: i64,
   ) -> Result<Vec<Post>, DomainError>;
+  #[allow(unused)]
   async fn get_row_count(&self) -> Result<i64, DomainError>;
   async fn get_active_row_count(&self) -> Result<i64, DomainError>;
   async fn update(&self, id: i64, post: Post) -> Result<Post, DomainError>;
+  #[allow(unused)]
   async fn delete(&self, id: i64) -> Result<(), DomainError>;
   async fn soft_delete(&self, id: i64) -> Result<(), DomainError>;
 }
