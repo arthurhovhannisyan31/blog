@@ -1,5 +1,4 @@
 FROM rust:1.95 AS build-web-server
-SHELL ["/bin/bash", "-c"]
 # copy locked dependencies
 COPY --from=builder /usr/local/cargo /usr/local/cargo
 # setup missing system dependencies

@@ -11,7 +11,7 @@ WORKDIR /home/blog
 COPY --from=builder /home/blog .
 # force sqlx to use cached queries metadata
 ENV SQLX_OFFLINE=true
-RUN cargo build --release -p blog-server
+RUN cargo build --release -p blog-server --features "tls"
 
 # glibc compatible container
 FROM debian:trixie-slim
@@ -20,6 +20,8 @@ RUN apt-get update \
     && apt-get install -y bash \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /home/blog
+# only required for secure connections: SERVER_TLS=true
+COPY --from=build-server /home/blog/configs/nginx/certs configs/nginx/certs
 COPY --from=build-server /home/blog/configs/scripts/server-healthcheck.sh configs/scripts/server-healthcheck.sh
 COPY --from=build-server /home/blog/target/release/blog-server .
 CMD ["/home/blog/blog-server"]

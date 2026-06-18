@@ -44,7 +44,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: curl -f http://${SERVER_HOST}:${SERVER_HTTP_PORT}/api/v0/health || exit 1
+      test: [ "CMD-SHELL", "./configs/scripts/server-healthcheck.sh" ]
       interval: 10s
       timeout: 3s
       start_period: 5s
