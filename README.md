@@ -90,8 +90,8 @@ The web client is available at: [https://localhost:3001](https://localhost:3001)
 Once you are done you can run docker artifacts cleanup:
 
 ```shell
-docker container rm blog_postgres blog_common blog_server blog_web_server
-docker rmi postgres blog-builder blog-server blog-web-server
+docker container rm blog_postgres blog_common blog_backend blog_frontend
+docker rmi postgres blog-builder blog-backend blog-frontend
 ```
 
 ### Manually

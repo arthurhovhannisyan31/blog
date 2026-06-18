@@ -25,25 +25,27 @@ impl AppConfig {
       dotenvy::dotenv()?;
     }
 
-    let host = env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let host = env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".into());
 
-    let http_port = env::var("SERVER_HTTP_PORT")
+    let http_port = env::var("BACKEND_HTTP_PORT")
       .unwrap_or_else(|_| "8080".into())
       .parse()
       .map_err(|e| {
-        ServerError::VarError(format!("Invalid SERVER_HTTP_PORT variable: {e}"))
+        ServerError::VarError(format!(
+          "Invalid BACKEND_HTTP_PORT variable: {e}"
+        ))
       })?;
-    let grpc_port = env::var("SERVER_GRPC_PORT")
+    let grpc_port = env::var("BACKEND_GRPC_PORT")
       .unwrap_or_else(|_| "50051".into())
       .parse()?;
-    let database_url = env::var("SERVER_DATABASE_URL").map_err(|e| {
-      ServerError::VarError(format!("Missing SERVER_DATABASE_URL: {e}"))
+    let database_url = env::var("BACKEND_DATABASE_URL").map_err(|e| {
+      ServerError::VarError(format!("Missing BACKEND_DATABASE_URL: {e}"))
     })?;
-    let jwt_secret = env::var("SERVER_JWT_SECRET").map_err(|e| {
-      ServerError::VarError(format!("Missing SERVER_JWT_SECRET: {e}"))
+    let jwt_secret = env::var("BACKEND_JWT_SECRET").map_err(|e| {
+      ServerError::VarError(format!("Missing BACKEND_JWT_SECRET: {e}"))
     })?;
 
-    let cors_origins = env::var("SERVER_CORS_ORIGINS")
+    let cors_origins = env::var("BACKEND_CORS_ORIGINS")
       .unwrap_or_else(|_| "*".into())
       .split(',')
       .map(|s| s.trim().to_string())

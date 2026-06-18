@@ -6,4 +6,4 @@ if [[ "$SERVER_TLS" == "true" ]]; then
     ULR_PROTOCOL=https
 fi
 
-curl -kf ${ULR_PROTOCOL}://${SERVER_HOST}:${SERVER_HTTP_PORT}/api/v0/health || exit 1
+curl -kf ${ULR_PROTOCOL}://${BACKEND_HOST}:${BACKEND_HTTP_PORT}/api/v0/health || exit 1
