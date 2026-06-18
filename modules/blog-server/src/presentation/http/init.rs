@@ -1,18 +1,10 @@
 use std::sync::Arc;
 
 use actix_web::{
-<<<<<<< HEAD
-  dev::Server, middleware::{DefaultHeaders, Logger},
-  web,
-  App,
-  HttpServer,
-||||||| parent of 701cf21 (add tls feature for blog-server)
-=======
   App, HttpServer,
   dev::Server,
   middleware::{DefaultHeaders, Logger},
   web,
->>>>>>> 701cf21 (add tls feature for blog-server)
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 

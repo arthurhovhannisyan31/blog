@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use actix_web::{dev::ServiceRequest, error, web, Error, HttpMessage};
+use actix_web::{Error, HttpMessage, dev::ServiceRequest, error, web};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::application::auth_service::AuthService;
