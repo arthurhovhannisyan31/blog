@@ -16,7 +16,7 @@ pub async fn jwt_validator(
   };
 
   let Some(auth_service) = req
-    .app_data::<web::Data<AuthService<PostgresUserRepository>>>()
+    .app_data::<web::Data<Arc<AuthService<PostgresUserRepository>>>>()
     .cloned()
   else {
     return Err((

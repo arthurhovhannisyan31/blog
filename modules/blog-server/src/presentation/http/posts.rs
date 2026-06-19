@@ -8,6 +8,7 @@ use crate::presentation::http::dto::{
 use actix_web::{HttpResponse, delete, get, post, put, web};
 use common::constants::{QUERY_LIMIT, QUERY_OFFSET};
 use common::utils::get_next_pagination;
+use std::sync::Arc;
 use tracing::info;
 
 pub fn ensure_owner(
@@ -23,7 +24,7 @@ pub fn ensure_owner(
 
 #[post("/posts")]
 pub async fn create_post(
-  blog_service: web::Data<BlogService<PostgresPostRepository>>,
+  blog_service: web::Data<Arc<BlogService<PostgresPostRepository>>>,
   payload: web::Json<CreatePostRequest>,
   user: AuthenticatedUser,
 ) -> Result<HttpResponse, ApplicationError> {
@@ -43,7 +44,7 @@ pub async fn create_post(
 
 #[get("/posts/{id}")]
 pub async fn get_post(
-  blog_service: web::Data<BlogService<PostgresPostRepository>>,
+  blog_service: web::Data<Arc<BlogService<PostgresPostRepository>>>,
   path: web::Path<i64>,
 ) -> Result<HttpResponse, ApplicationError> {
   let id = path.into_inner();
@@ -54,7 +55,7 @@ pub async fn get_post(
 
 #[get("/posts")]
 pub async fn list_posts(
-  blog_service: web::Data<BlogService<PostgresPostRepository>>,
+  blog_service: web::Data<Arc<BlogService<PostgresPostRepository>>>,
   query_params: web::Query<GetPostsQueryParams>,
 ) -> Result<HttpResponse, ApplicationError> {
   let params = query_params.into_inner();
@@ -81,7 +82,7 @@ pub async fn list_posts(
 
 #[put("/posts/{id}")]
 pub async fn update_post(
-  blog_service: web::Data<BlogService<PostgresPostRepository>>,
+  blog_service: web::Data<Arc<BlogService<PostgresPostRepository>>>,
   path: web::Path<i64>,
   user: AuthenticatedUser,
   payload: web::Json<UpdatePostRequest>,
@@ -112,7 +113,7 @@ pub async fn update_post(
 
 #[delete("/posts/{id}")]
 pub async fn delete_post(
-  blog_service: web::Data<BlogService<PostgresPostRepository>>,
+  blog_service: web::Data<Arc<BlogService<PostgresPostRepository>>>,
   path: web::Path<i64>,
   user: AuthenticatedUser,
 ) -> Result<HttpResponse, ApplicationError> {

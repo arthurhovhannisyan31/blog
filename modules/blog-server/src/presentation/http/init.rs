@@ -24,8 +24,8 @@ use crate::presentation::{
 };
 
 pub fn init_http_server(
-  auth_service: AuthService<PostgresUserRepository>,
-  blog_service: BlogService<PostgresPostRepository>,
+  auth_service: Arc<AuthService<PostgresUserRepository>>,
+  blog_service: Arc<BlogService<PostgresPostRepository>>,
   jwt_service: Arc<JwtService>,
   config: AppConfig,
 ) -> std::io::Result<Server> {

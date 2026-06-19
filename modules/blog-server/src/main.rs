@@ -36,10 +36,11 @@ async fn main() -> Result<(), ServerError> {
   let jwt_service = Arc::new(JwtService::new(config.jwt_secret.clone()));
 
   let posts_repo = PostgresPostRepository::new(pool.clone());
-  let blog_service = BlogService::new(posts_repo);
+  let blog_service = Arc::new(BlogService::new(posts_repo));
 
   let users_repo = PostgresUserRepository::new(pool.clone());
-  let auth_service = AuthService::new(users_repo, jwt_service.clone());
+  let auth_service =
+    Arc::new(AuthService::new(users_repo, jwt_service.clone()));
 
   let http_server = init_http_server(
     auth_service.clone(),

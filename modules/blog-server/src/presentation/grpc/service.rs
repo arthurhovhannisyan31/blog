@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Duration;
 
 use crate::application::{
@@ -25,14 +26,14 @@ use tracing::info;
 
 #[derive(Clone)]
 pub struct GrpcBlogPublicServiceImpl {
-  auth_service: AuthService<PostgresUserRepository>,
-  blog_service: BlogService<PostgresPostRepository>,
+  auth_service: Arc<AuthService<PostgresUserRepository>>,
+  blog_service: Arc<BlogService<PostgresPostRepository>>,
 }
 
 impl GrpcBlogPublicServiceImpl {
   pub fn new(
-    auth_service: AuthService<PostgresUserRepository>,
-    blog_service: BlogService<PostgresPostRepository>,
+    auth_service: Arc<AuthService<PostgresUserRepository>>,
+    blog_service: Arc<BlogService<PostgresPostRepository>>,
   ) -> Self {
     Self {
       auth_service,
@@ -43,14 +44,14 @@ impl GrpcBlogPublicServiceImpl {
 
 #[derive(Clone)]
 pub struct GrpcBlogProtectedServiceImpl {
-  auth_service: AuthService<PostgresUserRepository>,
-  blog_service: BlogService<PostgresPostRepository>,
+  auth_service: Arc<AuthService<PostgresUserRepository>>,
+  blog_service: Arc<BlogService<PostgresPostRepository>>,
 }
 
 impl GrpcBlogProtectedServiceImpl {
   pub fn new(
-    auth_service: AuthService<PostgresUserRepository>,
-    blog_service: BlogService<PostgresPostRepository>,
+    auth_service: Arc<AuthService<PostgresUserRepository>>,
+    blog_service: Arc<BlogService<PostgresPostRepository>>,
   ) -> Self {
     Self {
       auth_service,
