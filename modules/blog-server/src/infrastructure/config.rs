@@ -15,7 +15,12 @@ pub struct AppConfig {
 
 impl AppConfig {
   pub fn from_env() -> Result<Self, ServerError> {
-    dotenvy::dotenv().ok();
+    let docker_container =
+      env::var("DOCKER_CONTAINER").unwrap_or("false".to_owned());
+    // Load variables when run locally
+    if docker_container == "false".to_owned() {
+      dotenvy::dotenv()?;
+    }
 
     let host =
       std::env::var("SERVER_HOST").unwrap_or_else(|_| "127.0.0.1".into());

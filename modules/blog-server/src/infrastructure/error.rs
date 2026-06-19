@@ -13,6 +13,8 @@ pub enum ServerError {
   SqlxError(String),
   #[error("Failed to read env variable")]
   VarError(String),
+  #[error("Failed loading .env file")]
+  Dotenv(#[from] dotenvy::Error),
   #[error(transparent)]
   OtherError(#[from] anyhow::Error),
 }
