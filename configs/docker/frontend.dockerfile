@@ -1,5 +1,4 @@
-FROM rust:1.95 AS build-web-client
-SHELL ["/bin/bash", "-c"]
+FROM rust:1.95 AS build-frontend
 # copy locked dependencies
 COPY --from=builder /usr/local/cargo /usr/local/cargo
 # setup missing system dependencies
@@ -26,4 +25,4 @@ RUN dx bundle --web --release
 
 # web server
 FROM nginx:1.25
-COPY --from=build-web-client /home/blog/target/dx/blog-fe/release/web/public /usr/share/nginx/html
+COPY --from=build-frontend /home/blog/target/dx/blog-fe/release/web/public /usr/share/nginx/html

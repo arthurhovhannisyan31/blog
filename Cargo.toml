@@ -22,6 +22,7 @@ rust-version = "1.93.0"
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 common = { path = "./modules/common" }
+dotenvy = "0.15"
 proto-generator = { path = "./modules/proto-generator" }
 reqwest = { version = "0.13", features = ["json", "query"] }
 signal-hook = "0.4"

@@ -1,4 +1,4 @@
-FROM rust:1.95 AS build-server
+FROM rust:1.95 AS build-backend
 SHELL ["/bin/bash", "-c"]
 # copy locked dependencies
 COPY --from=builder /usr/local/cargo /usr/local/cargo
@@ -15,8 +15,11 @@ RUN cargo build --release -p blog-server
 
 # glibc compatible container
 FROM debian:trixie-slim
-RUN apt-get update && apt-get install -y curl \
+RUN apt-get update \
+    && apt-get install -y curl \
+    && apt-get install -y bash \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /home/blog
-COPY --from=build-server /home/blog/target/release/blog-server .
+COPY --from=build-backend /home/blog/configs/scripts/backend-healthcheck.sh configs/scripts/backend-healthcheck.sh
+COPY --from=build-backend /home/blog/target/release/blog-server .
 CMD ["/home/blog/blog-server"]

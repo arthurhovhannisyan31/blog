@@ -5,28 +5,28 @@ services:
     env_file:
       - ./.env
     ports:
-      - "${PORT_DB}:${PORT_DB}"
+      - "${POSTGRES_DB_PORT}:${POSTGRES_DB_PORT}"
   server:
     container_name: blog_server
     image: server
     depends_on:
       - db
     ports:
-      - "${SERVER_HTTP_PORT}:${SERVER_HTTP_PORT}"
-      - "${SERVER_GRPC_PORT}:${SERVER_GRPC_PORT}"
+      - "${BACKEND_HTTP_PORT}:${BACKEND_HTTP_PORT}"
+      - "${BACKEND_GRPC_PORT}:${BACKEND_GRPC_PORT}"
     env_file:
       - ./.env
     labels:
       kompose.service.type: nodeport
       kompose.image-pull-policy: Never
       kompose.service.expose: true
-  web-client:
-    container_name: blog_web_client
-    image: web-client
+  web-server:
+    container_name: blog_web_server
+    image: web-server
     depends_on:
       - server
     ports:
-      - "${WEB_CLIENT_PORT}:${NGINX_PORT}"
+      - "${FRONTEND_HTTP_PORT}:${NGINX_PORT}"
     env_file:
       - ./modules/blog-fe/.env #replace with local .env
     labels:

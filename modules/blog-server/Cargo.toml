@@ -12,9 +12,14 @@ rust-version.workspace = true
 name = "blog-server"
 path = "src/main.rs"
 
+[features]
+default = []
+tls = ["dep:openssl"]
+
 [dependencies]
 actix-cors = "0.7"
-actix-web = "4"
+actix-web = { version = "4", features = ["openssl"] }
+openssl = { version = "0.10", optional = true }
 actix-service = "2"
 actix-web-httpauth = "0.8.2"
 anyhow.workspace = true
@@ -22,7 +27,7 @@ argon2 = "0.5"
 async-trait = "0.1"
 chrono.workspace = true
 common.workspace = true
-dotenvy = "0.15"
+dotenvy.workspace = true
 jsonwebtoken = { version = "10", features = ["aws_lc_rs"] }
 futures-util = "0.3"
 prost = "0.14"

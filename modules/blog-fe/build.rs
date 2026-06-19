@@ -5,11 +5,10 @@ fn main() {
   println!("cargo:rerun-if-changed=build.rs");
   println!("cargo:rerun-if-changed=src/config.toml");
 
-  // let path: &'static str = env!("PATH");
-  let port = std::env::var("API_PORT").unwrap_or_else(|_| "8080".into());
-  let host = std::env::var("API_HOST").unwrap_or_else(|_| "127.0.0.1".into());
+  let port = env::var("BACKEND_PORT").unwrap_or_else(|_| "8080".into());
+  let host = env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".into());
 
   // Expose env variables to Dioxus app context
-  println!("cargo::rustc-env=API_PORT={}", port);
-  println!("cargo::rustc-env=API_HOST={}", host);
+  println!("cargo::rustc-env=BACKEND_PORT={}", port);
+  println!("cargo::rustc-env=BACKEND_HOST={}", host);
 }
