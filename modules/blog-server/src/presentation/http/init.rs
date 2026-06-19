@@ -51,9 +51,28 @@ pub fn init_http_server(
           .service(public_scope())
           .service(web::scope("").wrap(auth).service(protected_scope())),
       )
-  })
-  .bind((config.host.as_str(), config.http_port))?
-  .run();
+  });
 
-  Ok(server)
+  #[cfg(feature = "tls")]
+  {
+    use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
+
+    builder.set_private_key_file(config.tls_key_path, SslFiletype::PEM)?;
+    builder.set_certificate_chain_file(config.tls_crt_path)?;
+
+    let server = server
+      .bind_openssl((config.host.as_str(), config.http_port), builder)?
+      .run();
+
+    Ok(server)
+  }
+
+  #[cfg(not(feature = "tls"))]
+  {
+    let server = server.bind((config.host.as_str(), config.http_port))?.run();
+
+    Ok(server)
+  }
 }

@@ -1,6 +1,9 @@
+use std::env;
+
 pub struct AppConfig {
   pub port: String,
   pub host: String,
+  pub protocol: String,
 }
 
 impl AppConfig {
@@ -16,6 +19,17 @@ impl AppConfig {
       .unwrap_or(option_env!("BACKEND_TLS").unwrap_or("false").into())
       .eq("true");
 
-    Ok(AppConfig { port, host })
+    let protocol = (if use_secure_connection {
+      "https"
+    } else {
+      "http"
+    })
+    .into();
+
+    Ok(AppConfig {
+      port,
+      host,
+      protocol,
+    })
   }
 }

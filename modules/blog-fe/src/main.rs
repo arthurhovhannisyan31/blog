@@ -1,3 +1,4 @@
+use dioxus::logger::tracing::Level;
 use dioxus::prelude::*;
 use dioxus_sdk_storage::{LocalStorage, use_synced_storage};
 mod components;
@@ -13,15 +14,19 @@ use crate::infrastructure::client::BlogClient;
 use crate::infrastructure::state::{AppState, UserData};
 
 fn main() {
+  dioxus::logger::init(Level::DEBUG).expect("failed to init logger");
   dioxus::launch(App);
 }
 
 #[component]
 fn App() -> Element {
-  let AppConfig { port, host } =
-    AppConfig::from_env().expect("Failed reading app config");
+  let AppConfig {
+    port,
+    host,
+    protocol,
+  } = AppConfig::from_env().expect("Failed reading app config");
 
-  let api_base_url = format!("http://{}:{}/api", host, port);
+  let api_base_url = format!("{}://{}:{}/api", protocol, host, port);
   let client = use_signal(|| {
     BlogClient::new(api_base_url).expect("Failed to build api client")
   });

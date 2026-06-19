@@ -1,10 +1,22 @@
 use blog_client::{AbstractBlogClient, http_client::HttpBlogClient};
 use reqwest::Client;
+use std::env;
 use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   tracing_subscriber::fmt().with_env_filter("info").init();
+  dotenvy::dotenv()?;
+
+  let use_secure_connection =
+    env::var("BACKEND_TLS").unwrap_or("false".into()).eq("true");
+
+  let protocol = (if use_secure_connection {
+    "https"
+  } else {
+    "http"
+  })
+  .to_string();
 
   let request_client = Client::builder()
     .build()
@@ -12,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   let mut client = HttpBlogClient::new(
     request_client,
-    "http://127.0.0.1:8080/api".to_string(),
+    format!("{}://localhost:8080/api", protocol),
   );
 
   let list_posts_response = client.list_posts(None, None).await?;
