@@ -8,6 +8,8 @@ mod domain;
 mod infrastructure;
 mod presentation;
 
+#[cfg(feature = "tls")]
+use crate::infrastructure::tls::init_tls;
 use application::{auth_service::AuthService, blog_service::BlogService};
 use data::{
   post_repository::PostgresPostRepository,
@@ -27,6 +29,8 @@ use presentation::{
 #[actix_web::main]
 async fn main() -> Result<(), ServerError> {
   init_logging();
+  #[cfg(feature = "tls")]
+  init_tls()?;
 
   let config = AppConfig::from_env()?;
   let pool = create_pool(&config.database_url).await?;

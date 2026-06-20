@@ -1,5 +1,7 @@
 use std::error::Error;
 
+use crate::AbstractBlogClient;
+use crate::error::BlogClientError;
 use proto_generator::blog::{
   AuthRequest, AuthResponse, CreatePostRequest, CreateUserRequest,
   DeletePostRequest, GetPostRequest, ListPostsRequest, PostResponse,
@@ -7,10 +9,8 @@ use proto_generator::blog::{
   blog_protected_service_client::BlogProtectedServiceClient,
   blog_public_service_client::BlogPublicServiceClient,
 };
+use tonic::transport::Channel;
 use tonic::{Request, metadata::MetadataValue};
-
-use crate::AbstractBlogClient;
-use crate::error::BlogClientError;
 
 pub struct GrpcBlogClient {
   pub public: BlogPublicServiceClient<tonic::transport::Channel>,
@@ -21,6 +21,13 @@ impl GrpcBlogClient {
   pub async fn new(addr: String) -> Result<Self, Box<dyn Error>> {
     let public = BlogPublicServiceClient::connect(addr.clone()).await?;
     let protected = BlogProtectedServiceClient::connect(addr).await?;
+
+    Ok(Self { public, protected })
+  }
+
+  pub async fn new_tls(channel: Channel) -> Result<Self, Box<dyn Error>> {
+    let public = BlogPublicServiceClient::new(channel.clone());
+    let protected = BlogProtectedServiceClient::new(channel.clone());
 
     Ok(Self { public, protected })
   }

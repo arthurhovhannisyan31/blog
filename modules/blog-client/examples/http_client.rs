@@ -1,6 +1,7 @@
-use blog_client::{AbstractBlogClient, http_client::HttpBlogClient};
+use blog_client::{
+  AbstractBlogClient, http_client::HttpBlogClient, utils::get_env_protocol,
+};
 use reqwest::Client;
-use std::env;
 use tracing::info;
 
 #[tokio::main]
@@ -8,15 +9,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   tracing_subscriber::fmt().with_env_filter("info").init();
   dotenvy::dotenv()?;
 
-  let use_secure_connection =
-    env::var("BACKEND_TLS").unwrap_or("false".into()).eq("true");
+  let protocol = get_env_protocol();
 
-  let protocol = (if use_secure_connection {
-    "https"
-  } else {
-    "http"
-  })
-  .to_string();
+  info!("Connection protocol: {}", protocol);
 
   let request_client = Client::builder()
     .build()
