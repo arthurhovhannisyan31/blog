@@ -6,3 +6,5 @@ pub mod database;
 pub mod error;
 pub mod jwt;
 pub mod logging;
+#[cfg(feature = "tls")]
+pub mod tls;

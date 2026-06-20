@@ -13,8 +13,8 @@
 
 A full-stack Rust workspace featuring a high-performance backend, a reactive web frontend,
 and a versatile CLI tool.
-This workspace demonstrates a clean architecture approach, supporting both HTTP and
-gRPC protocols with shared logic and automated code generation.
+This workspace demonstrates a clean architecture approach, supporting both `HTTP/S` and
+`gRPC/TLS` protocols with shared logic and automated code generation.
 
 **Core Impact & Achievements**:
 
@@ -44,7 +44,7 @@ gRPC protocols with shared logic and automated code generation.
 
 - [Server](./modules/blog-server/README.md) is implemented with the [Actix](https://actix.rs/) framework with basic
   authentication user flow and `CRUD` API for blog posts.
-  The server supports `HTTP` and `gRPC` protocols with authentication middleware.
+  The server supports `HTTP/S` and `gRPC/TLS` protocols with authentication middleware.
   Server starts both (`HTTP` and `gRPC`) servers simultaneously.
   The `gRPC` server supports the reflection API, which is very handy using CLI tools like `grpcurl`.
   The server uses a single [postgres](https://www.postgresql.org/) database for implemented protocols.
@@ -58,7 +58,8 @@ gRPC protocols with shared logic and automated code generation.
   and provides simple access to all server APIs, implementing `HTTP` and `gRPC` protocols.
   CLI supports argument validation and provides help output.
 
-- [Client](./modules/blog-client/README.md) provides simple access to all server APIs, implementing `HTTP` and `gRPC`
+- [Client](./modules/blog-client/README.md) provides simple access to all server APIs, implementing `HTTP/S` and
+  `gRPC+TLS`
   protocols access through a single entry point.
   Crate provides implementation for `HTTP` and `gRPC` clients, which can be used with `cli builder`
   The [HTTP client](./src/http_client.rs) uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) as transport
@@ -85,11 +86,13 @@ If you have `docker` installed you can simply run following command:
 docker compose up
 ```
 
+The web client is available at: [https://localhost:3001](https://localhost:3001).
+
 Once you are done you can run docker artifacts cleanup:
 
 ```shell
-docker container rm blog_postgres blog_common blog_server blog_web_client
-docker rmi postgres blog-builder blog-server blog-web-client
+docker container rm blog_postgres blog_common blog_backend blog_frontend
+docker rmi postgres blog-builder blog-backend blog-frontend
 ```
 
 ### Manually

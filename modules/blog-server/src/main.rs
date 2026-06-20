@@ -8,6 +8,8 @@ mod domain;
 mod infrastructure;
 mod presentation;
 
+#[cfg(feature = "tls")]
+use crate::infrastructure::tls::init_tls;
 use application::{auth_service::AuthService, blog_service::BlogService};
 use data::{
   post_repository::PostgresPostRepository,
@@ -27,6 +29,8 @@ use presentation::{
 #[actix_web::main]
 async fn main() -> Result<(), ServerError> {
   init_logging();
+  #[cfg(feature = "tls")]
+  init_tls()?;
 
   let config = AppConfig::from_env()?;
   let pool = create_pool(&config.database_url).await?;
@@ -36,10 +40,11 @@ async fn main() -> Result<(), ServerError> {
   let jwt_service = Arc::new(JwtService::new(config.jwt_secret.clone()));
 
   let posts_repo = PostgresPostRepository::new(pool.clone());
-  let blog_service = BlogService::new(posts_repo);
+  let blog_service = Arc::new(BlogService::new(posts_repo));
 
   let users_repo = PostgresUserRepository::new(pool.clone());
-  let auth_service = AuthService::new(users_repo, jwt_service.clone());
+  let auth_service =
+    Arc::new(AuthService::new(users_repo, jwt_service.clone()));
 
   let http_server = init_http_server(
     auth_service.clone(),

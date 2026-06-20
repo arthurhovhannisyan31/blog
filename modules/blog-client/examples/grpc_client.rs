@@ -1,13 +1,38 @@
+use blog_client::utils::get_env_protocol;
 use blog_client::{AbstractBlogClient, grpc_client::GrpcBlogClient};
+use tonic::transport::{Channel, ClientTlsConfig};
 use tracing::info;
+
+async fn get_client(
+  protocol: &str,
+) -> Result<GrpcBlogClient, Box<dyn std::error::Error>> {
+  match protocol {
+    "http" => GrpcBlogClient::new("http://localhost:50051".to_owned()).await,
+    "https" => {
+      let tls = ClientTlsConfig::new()
+        .with_enabled_roots()
+        .domain_name("localhost");
+
+      let channel = Channel::from_static("https://localhost:50051")
+        .tls_config(tls)?
+        .connect()
+        .await?;
+
+      GrpcBlogClient::new_tls(channel).await
+    }
+    _ => panic!("Protocol not supported"),
+  }
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   tracing_subscriber::fmt().with_env_filter("info").init();
+  dotenvy::dotenv()?;
 
-  let mut client =
-    GrpcBlogClient::new("http://127.0.0.1:50051".to_string()).await?;
+  let protocol = get_env_protocol();
+  info!("Connection protocol: {}", protocol);
 
+  let mut client = get_client(&protocol).await?;
   let list_posts_response = client.list_posts(None, None).await?;
 
   info!("List existing posts \n\n");

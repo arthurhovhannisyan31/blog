@@ -22,13 +22,14 @@ rust-version = "1.93.0"
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 common = { path = "./modules/common" }
+dotenvy = "0.15"
 proto-generator = { path = "./modules/proto-generator" }
 reqwest = { version = "0.13", features = ["json", "query"] }
 signal-hook = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2.0"
-tonic = "0.14"
+tonic = { version = "0.14", features = ["tls-ring", "transport", "tls-native-roots"] }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "chrono", "time"] }

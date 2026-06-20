@@ -3,21 +3,31 @@ services:
     container_name: blog_common
     build:
       dockerfile: ./configs/docker/builder.dockerfile
+  #================================================
   db:
     container_name: blog_postgres
     image: postgres:latest
     env_file:
-      - ./.env
+      - .env
     healthcheck:
       test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 10s
-  server:
-    container_name: blog_server
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.50'
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+  #================================================
+  backend:
+    container_name: blog_backend
     build:
-      dockerfile: ./configs/docker/server.dockerfile
+      dockerfile: ./configs/docker/backend.dockerfile
       additional_contexts:
         builder: service:builder
     depends_on:
@@ -27,29 +37,63 @@ services:
         condition: service_healthy
         restart: true
     ports:
-      - "${SERVER_HTTP_PORT}:${SERVER_HTTP_PORT}"
-      - "${SERVER_GRPC_PORT}:${SERVER_GRPC_PORT}"
+      - "${BACKEND_HTTP_PORT}:${BACKEND_HTTP_PORT}"
+      - "${BACKEND_GRPC_PORT}:${BACKEND_GRPC_PORT}"
+    environment:
+      - DOCKER_CONTAINER=true
     env_file:
-      - ./.env
+      - .env
     healthcheck:
-      test: curl -f http://${SERVER_HOST}:${SERVER_HTTP_PORT}/api/v0/health || exit 1
+      test: [ "CMD-SHELL", "./configs/scripts/backend-healthcheck.sh" ]
       interval: 10s
       timeout: 3s
-      start_period: 10s
+      start_period: 5s
       retries: 3
-  web-client:
-    container_name: blog_web_client
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.50'
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+  #================================================
+  frontend:
+    container_name: blog_frontend
     build:
-      dockerfile: ./configs/docker/web-client.dockerfile
+      dockerfile: ./configs/docker/frontend.dockerfile
       additional_contexts:
         builder: service:builder
     depends_on:
       builder:
         condition: service_completed_successfully
-      server:
+      backend:
         condition: service_healthy
         restart: true
     ports:
-      - "${WEB_CLIENT_PORT}:${NGINX_PORT}"
+      - "${FRONTEND_HTTP_PORT}:${NGINX_HTTP_PORT}"
+      - "${FRONTEND_HTTPS_PORT}:${NGINX_HTTPS_PORT}"
     env_file:
-      - ./modules/blog-fe/.env #replace with local .env
+      - .env
+    volumes:
+      - ./configs/nginx/nginx.frontend.conf:/etc/nginx/nginx.conf:ro
+      - ./configs/nginx/certs:/etc/nginx/certs:ro
+    healthcheck:
+      test: curl -f https://localhost:${FRONTEND_HTTPS_PORT} || exit 1
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.50'
+        reservations:
+          memory: 256M
+    restart: unless-stopped
