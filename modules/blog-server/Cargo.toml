@@ -14,12 +14,14 @@ path = "src/main.rs"
 
 [features]
 default = []
-tls = ["dep:openssl"]
+tls = ["dep:rustls", "dep:rustls-pemfile", "dep:rustls-pki-types"]
 
 [dependencies]
 actix-cors = "0.7"
-actix-web = { version = "4", features = ["openssl"] }
-openssl = { version = "0.10", optional = true }
+actix-web = { version = "4", features = ["rustls-0_23"] }
+rustls = { version = "0.23", optional = true }
+rustls-pemfile = { version = "2.2", optional = true }
+rustls-pki-types = { version = "1.0", optional = true }
 actix-service = "2"
 actix-web-httpauth = "0.8.2"
 anyhow.workspace = true

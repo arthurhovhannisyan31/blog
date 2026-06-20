@@ -1,13 +1,15 @@
 use crate::infrastructure::error::ServerError;
+use anyhow::Context;
 use serde::Deserialize;
 use std::env;
+use std::net::SocketAddr;
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
   pub host: String,
   pub http_port: u16,
-  pub grpc_port: u16,
+  pub grpc_addr: SocketAddr,
   pub database_url: String,
   pub jwt_secret: String,
   #[serde(default)]
@@ -37,7 +39,11 @@ impl AppConfig {
       })?;
     let grpc_port = env::var("BACKEND_GRPC_PORT")
       .unwrap_or_else(|_| "50051".into())
-      .parse()?;
+      .parse::<u16>()?;
+    let grpc_addr: SocketAddr = format!("{}:{}", host.as_str(), grpc_port)
+      .parse()
+      .context("Failed parsing gRPC socket address")?;
+
     let database_url = env::var("BACKEND_DATABASE_URL").map_err(|e| {
       ServerError::VarError(format!("Missing BACKEND_DATABASE_URL: {e}"))
     })?;
@@ -79,7 +85,7 @@ impl AppConfig {
     Ok(Self {
       host,
       http_port,
-      grpc_port,
+      grpc_addr,
       database_url,
       jwt_secret,
       cors_origins,

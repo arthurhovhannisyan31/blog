@@ -15,6 +15,8 @@ pub enum ServerError {
   VarError(String),
   #[error("Failed loading .env file")]
   Dotenv(#[from] dotenvy::Error),
+  #[error("gRPC transport error: {0}")]
+  GrpcTransport(#[from] tonic::transport::Error),
   #[error(transparent)]
   OtherError(#[from] anyhow::Error),
 }
