@@ -6,7 +6,7 @@ services:
   #================================================
   db:
     container_name: blog_postgres
-    image: postgres:latest
+    image: postgres:18.4
     env_file:
       - .env
     healthcheck:
@@ -19,9 +19,13 @@ services:
       resources:
         limits:
           memory: 1G
-          cpus: '0.50'
+        #          cpus: '0.50'
         reservations:
           memory: 256M
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     restart: unless-stopped
   #================================================
   backend:
@@ -53,7 +57,7 @@ services:
       resources:
         limits:
           memory: 1G
-          cpus: '0.50'
+        #          cpus: '0.50'
         reservations:
           memory: 256M
     restart: unless-stopped
@@ -93,7 +97,7 @@ services:
       resources:
         limits:
           memory: 1G
-          cpus: '0.50'
+        #          cpus: '0.50'
         reservations:
           memory: 256M
     restart: unless-stopped

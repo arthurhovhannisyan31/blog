@@ -21,10 +21,10 @@ pub fn Login() -> Element {
       error.set(true);
       return;
     }
+    let email = email.read().to_string();
+    let password = password.read().to_string();
 
-    let auth_response = client()
-      .login(email.read().to_string(), password.read().to_string())
-      .await;
+    let auth_response = client().login(email, password).await;
 
     match auth_response {
       Ok(data) => {

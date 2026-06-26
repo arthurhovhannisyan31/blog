@@ -26,13 +26,11 @@ pub fn Register() -> Element {
       return;
     }
 
-    let auth_response = client()
-      .register(
-        username.read().to_string(),
-        email.read().to_string(),
-        password.read().to_string(),
-      )
-      .await;
+    let username = username.read().to_string();
+    let email = email.read().to_string();
+    let password = password.read().to_string();
+
+    let auth_response = client().register(username, email, password).await;
 
     match auth_response {
       Ok(data) => {

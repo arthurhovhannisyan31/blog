@@ -29,6 +29,7 @@ pub async fn read_token(path: String) -> Result<String, CliError> {
 pub async fn save_token(path: String, token: String) -> Result<(), CliError> {
   let mut f = OpenOptions::new()
     .create(true)
+    .truncate(true)
     .read(true)
     .write(true)
     .open(path)

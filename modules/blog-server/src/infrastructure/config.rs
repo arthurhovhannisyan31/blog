@@ -23,7 +23,7 @@ impl AppConfig {
     let docker_container =
       env::var("DOCKER_CONTAINER").unwrap_or("false".to_owned());
     // Load variables when run locally
-    if docker_container == "false".to_owned() {
+    if &docker_container == "false" {
       dotenvy::dotenv()?;
     }
 
@@ -58,7 +58,9 @@ impl AppConfig {
       .filter(|s| !s.is_empty())
       .collect();
 
+    #[allow(unused_assignments)]
     let mut tls_key_path = PathBuf::default();
+    #[allow(unused_assignments)]
     let mut tls_crt_path = PathBuf::default();
 
     #[cfg(feature = "tls")]
