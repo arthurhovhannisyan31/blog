@@ -18,8 +18,8 @@ pub fn PostsList() -> Element {
       rsx! {
         for post in post_list.posts.iter() {
           PostCard {
-            id: post.id.clone(),
-            is_owner: auth().and_then(|data| Some(data.user_id)) == Some(post.author_id.clone()),
+            id: post.id,
+            is_owner: auth().map(|data| data.user_id == post.author_id) == Some(true),
             title: post.title.clone(),
             content: post.content.clone(),
             resource: posts_resource,

@@ -8,7 +8,7 @@ mod infrastructure;
 mod view;
 
 use crate::configs::app::AppConfig;
-use crate::configs::assets::assets;
+use crate::configs::assets;
 use crate::configs::route::Route;
 use crate::infrastructure::client::BlogClient;
 use crate::infrastructure::state::{AppState, UserData};
@@ -42,10 +42,10 @@ fn App() -> Element {
     client,
   });
   use_effect(move || {
-    if !storage().is_empty() {
-      if let Ok(user_data) = serde_json::from_str::<UserData>(&storage()) {
-        auth.set(Some(user_data));
-      }
+    if !storage().is_empty()
+      && let Ok(user_data) = serde_json::from_str::<UserData>(&storage())
+    {
+      auth.set(Some(user_data));
     }
   });
 
