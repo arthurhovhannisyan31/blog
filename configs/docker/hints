@@ -1,3 +1,5 @@
+docker compose restart frontend
+
 # Builder
 docker build -f ./configs/docker/builder.dockerfile -t builder .
 
