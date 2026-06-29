@@ -56,7 +56,9 @@ where
     email: &str,
     password: &str,
   ) -> Result<String, ApplicationError> {
-    let user = self.get_by_email(&email.to_lowercase()).await?;
+    let Ok(user) = self.get_by_email(&email.to_lowercase()).await else {
+      return Err(ApplicationError::Unauthorized);
+    };
 
     let password_valid = verify_password(password, &user.password_hash)
       .map_err(|_| ApplicationError::Unauthorized)?;

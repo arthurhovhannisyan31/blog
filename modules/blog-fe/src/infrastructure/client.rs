@@ -57,12 +57,12 @@ impl BlogClient {
       http_scope::PUBLIC.trim_start_matches('/'),
       http_route::LOGIN.trim_start_matches('/')
     );
-    let response = self
-      .client
-      .post(url)
-      .json(&AuthRequest { email, password })
-      .send()
-      .await?;
+    let request = self.client.post(url).json(&AuthRequest { email, password });
+
+    #[cfg(target_arch = "wasm32")]
+    let request = request.fetch_credentials_include();
+
+    let response = request.send().await?;
     let auth = response.json::<AuthResponse>().await?;
 
     Ok(auth)

@@ -20,13 +20,10 @@ fn main() {
 
 #[component]
 fn App() -> Element {
-  let AppConfig {
-    port,
-    host,
-    protocol,
-  } = AppConfig::from_env().expect("Failed reading app config");
+  let AppConfig { port, host } =
+    AppConfig::from_env().expect("Failed reading app config");
 
-  let api_base_url = format!("{}://{}:{}/api", protocol, host, port);
+  let api_base_url = format!("https://{}:{}/api", host, port);
   let client = use_signal(|| {
     BlogClient::new(api_base_url).expect("Failed to build api client")
   });

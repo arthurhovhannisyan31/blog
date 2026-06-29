@@ -9,6 +9,7 @@ use crate::data::user_repository::PostgresUserRepository;
 use crate::presentation::http::dto::{
   AuthRequest, AuthResponse, AuthenticatedUser, CreateUserRequest,
 };
+use crate::presentation::http::utils::get_auth_cookie;
 
 #[get("/health")]
 pub async fn health() -> impl Responder {
@@ -39,10 +40,16 @@ pub async fn register(
     username: user.username,
   };
 
-  Ok(HttpResponse::Created().json(AuthResponse {
-    user: authenticated_user,
-    token,
-  }))
+  Ok(
+    HttpResponse::Created()
+      .insert_header(("Access-Control-Allow-Credentials", "true"))
+      .insert_header(("Access-Control-Allow-Headers", "*"))
+      .cookie(get_auth_cookie(&token))
+      .json(AuthResponse {
+        user: authenticated_user,
+        token,
+      }),
+  )
 }
 
 #[post("/auth/login")]
@@ -58,8 +65,13 @@ pub async fn login(
     username: user.username,
   };
 
-  Ok(HttpResponse::Created().json(AuthResponse {
-    user: authenticated_user,
-    token,
-  }))
+  Ok(
+    HttpResponse::Created()
+      .insert_header(("Access-Control-Allow-Credentials", "true"))
+      .cookie(get_auth_cookie(&token))
+      .json(AuthResponse {
+        user: authenticated_user,
+        token,
+      }),
+  )
 }
