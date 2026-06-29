@@ -11,10 +11,10 @@ pub fn build_cors(cors_origins: &[String]) -> Cors {
     .max_age(3600);
 
   cors = cors.allow_any_origin();
-  // for origin in cors_origins {
-  //   cors = cors.allowed_origin(origin);
-  //   cors = cors.allowed_origin(origin);
-  // }
+
+  for origin in cors_origins {
+    cors = cors.allowed_origin(origin);
+  }
 
   cors
 }

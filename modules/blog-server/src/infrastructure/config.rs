@@ -27,7 +27,7 @@ impl AppConfig {
       dotenvy::dotenv()?;
     }
 
-    let host = env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let host = env::var("BACKEND_HOST").unwrap_or_else(|_| "localhost".into());
 
     let http_port = env::var("BACKEND_HTTP_PORT")
       .unwrap_or_else(|_| "8080".into())

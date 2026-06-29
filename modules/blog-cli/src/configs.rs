@@ -16,7 +16,7 @@ impl AppConfig {
   pub fn from_env() -> Result<Self, CliError> {
     dotenvy::dotenv().ok();
 
-    let host = std::env::var("HOST").unwrap_or("127.0.0.1".into());
+    let host = std::env::var("HOST").unwrap_or("localhost".into());
     let http_port = std::env::var("HTTP_PORT")
       .unwrap_or("8080".into())
       .parse()
