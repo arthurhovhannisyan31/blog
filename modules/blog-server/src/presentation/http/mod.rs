@@ -5,3 +5,4 @@ pub mod posts;
 pub mod scoped;
 #[cfg(feature = "tls")]
 pub mod tls;
+pub mod utils;
