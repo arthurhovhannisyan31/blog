@@ -24,4 +24,4 @@ WORKDIR /home/blog
 COPY --from=build-backend /home/blog/configs/nginx/certs configs/nginx/certs
 COPY --from=build-backend /home/blog/configs/scripts/backend-healthcheck.sh configs/scripts/backend-healthcheck.sh
 COPY --from=build-backend /home/blog/target/release/blog-server .
-CMD ["/home/blog/blog-server"]
+ENTRYPOINT ["/home/blog/blog-server"]
